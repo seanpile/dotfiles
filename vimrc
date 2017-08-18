@@ -19,6 +19,12 @@ Plugin 'tpope/vim-unimpaired'
 Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-commentary'
 
+" NERD Tree
+Plugin 'scrooloose/nerdtree'
+
+" CtrlP
+Plugin 'kien/ctrlp.vim'
+
 " Modify word motions to be CamelCase/snake_case aware
 Plugin 'chaoren/vim-wordmotion'
 
@@ -207,7 +213,7 @@ if executable('clang-format')
     let g:clang_format#detect_style_file=1
     let g:clang_format#auto_formatexpr=1
 endif
-autocmd FileType c,cpp,objc,javascript setlocal expandtab tabstop=4 shiftwidth=4 
+autocmd FileType c,cpp,objc,javascript setlocal expandtab tabstop=4 shiftwidth=4
 
 " -------------------------------
 " Turn off automappings for vim-bufkill
@@ -225,10 +231,15 @@ augroup quickfix
 augroup END
 
 " -------------------------------
+" NERDTree
+" -------------------------------
+nnoremap <Leader>/ :NERDTreeToggle<CR>
+
+" -------------------------------
 " Golang Config
 " -------------------------------
 let g:go_list_type = "quickfix"
-let g:go_list_autoclose = 0
+let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
 let g:go_fmt_command = "gofmt"
 let g:go_fmt_fail_silently = 1
@@ -236,7 +247,15 @@ let g:go_def_reuse_buffer = 1
 let g:go_echo_command_info = 0
 let g:go_list_height = 10
 autocmd FileType go let g:airline_section_c = '%t %{go#statusline#Show()}'
+autocmd FileType go nnoremap <Leader>m :GoBuild<CR>
 autocmd FileType go nnoremap <Leader>r :GoRun<CR>
 autocmd FileType go nnoremap <Leader>t :GoTest<CR>
 autocmd FileType go nnoremap <Leader>i :GoImports<CR>
-autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 
+autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
+
+" -------------------------------
+" CtrlP
+" -------------------------------
+let g:ctrlp_map = '<Leader>p'
+let g:ctrlp_show_hidden=1
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
