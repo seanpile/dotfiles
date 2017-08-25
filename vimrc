@@ -72,6 +72,7 @@ set wildmenu
 set cursorline
 set guioptions=
 set undofile
+set colorcolumn=100
 set undodir=$HOME/.vim/undo
 
 " -------------------------------
@@ -216,6 +217,12 @@ endif
 autocmd FileType c,cpp,objc,javascript setlocal expandtab tabstop=4 shiftwidth=4
 
 " -------------------------------
+" Markdown Syntax 
+" -------------------------------
+autocmd FileType markdown setlocal expandtab tabstop=4 shiftwidth=4
+autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
+
+" -------------------------------
 " Turn off automappings for vim-bufkill
 " -------------------------------
 let g:BufKillCreateMappings=0
@@ -241,13 +248,24 @@ nnoremap <Leader>/ :NERDTreeToggle<CR>
 let g:go_list_type = "quickfix"
 let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
-let g:go_fmt_command = "gofmt"
-let g:go_fmt_fail_silently = 1
+let g:go_fmt_command = "goimports"
+let g:go_fmt_fail_silently = 0
 let g:go_def_reuse_buffer = 1
 let g:go_echo_command_info = 0
 let g:go_list_height = 10
 autocmd FileType go let g:airline_section_c = '%t %{go#statusline#Show()}'
-autocmd FileType go nnoremap <Leader>m :GoBuild<CR>
+
+" run :GoBuild or :GoTestCompile based on the go file
+function! s:build_go_files()
+  let l:file = expand('%')
+  if l:file =~# '^\f\+_test\.go$'
+    call go#test#Test(0, 1)
+  elseif l:file =~# '^\f\+\.go$'
+    call go#cmd#Build(0)
+  endif
+endfunction
+
+autocmd FileType go nnoremap <leader>m :<C-u>call <SID>build_go_files()<CR>
 autocmd FileType go nnoremap <Leader>r :GoRun<CR>
 autocmd FileType go nnoremap <Leader>t :GoTest<CR>
 autocmd FileType go nnoremap <Leader>i :GoImports<CR>
