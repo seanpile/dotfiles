@@ -37,7 +37,7 @@ Plugin 'milkypostman/vim-togglelist'
 
 " User Interface Mods
 Plugin 'altercation/vim-colors-solarized'
-Plugin 'bling/vim-airline'
+Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
 
 " Better grepping
@@ -51,6 +51,7 @@ Plugin 'rhysd/vim-clang-format'
 
 " JavaScript
 Plugin 'pangloss/vim-javascript'
+Plugin 'mitermayer/vim-prettier'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -165,7 +166,6 @@ nnoremap <Leader>m :silent make<CR>
 " -------------------------------
 nnoremap <Leader>g :Ack<space>
 nnoremap <Leader>k :Ack<CR>:wincmd h<CR>
-let g:ack_qhandler = "vertical cope 100"
 let g:ack_use_cword_for_empty_search = 1
 if executable('ag')
     let g:ackprg = 'ag --vimgrep'
@@ -177,6 +177,9 @@ endif
 let g:airline_theme='solarized'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+let g:airline#extensions#tabline#fnamemod = ':p:t'
+let g:airline#extensions#tabline#show_splits = 0
 
 nnoremap <Leader>b :ls<CR>:b<Space>
 nmap <leader>1 <Plug>AirlineSelectTab1
@@ -189,7 +192,7 @@ nmap <leader>7 <Plug>AirlineSelectTab7
 nmap <leader>8 <Plug>AirlineSelectTab8
 nmap <leader>9 <Plug>AirlineSelectTab9
 nmap <leader>- <Plug>AirlineSelectPrevTab
-nmap <leader>+ <Plug>AirlineSelectNextTab
+nmap <leader>= <Plug>AirlineSelectNextTab
 
 let g:airline#extensions#tabline#buffer_idx_format = {
         \ '0': '0 ',
@@ -209,12 +212,18 @@ let g:airline#extensions#tabline#buffer_idx_format = {
 " -------------------------------
 " map to <Leader>cf in C++ code
 if executable('clang-format')
-    autocmd FileType c,cpp,objc,javascript nnoremap <buffer><Leader>f :<C-u>ClangFormat<CR>
-    autocmd FileType c,cpp,objc,javascript vnoremap <buffer><Leader>f :ClangFormat<CR>
+    autocmd FileType c,cpp,objc nnoremap <buffer><Leader>f :<C-u>ClangFormat<CR>
+    autocmd FileType c,cpp,objc vnoremap <buffer><Leader>f :ClangFormat<CR>
     let g:clang_format#detect_style_file=1
     let g:clang_format#auto_formatexpr=1
 endif
-autocmd FileType c,cpp,objc,javascript setlocal expandtab tabstop=4 shiftwidth=4
+autocmd FileType c,cpp,objc setlocal expandtab tabstop=4 shiftwidth=4
+
+" -------------------------------
+" Javascript Settings
+" -------------------------------
+autocmd FileType javascript nmap <Leader>f <Plug>(Prettier)
+autocmd FileType javascript setlocal expandtab tabstop=2 shiftwidth=2
 
 " -------------------------------
 " Markdown Syntax 
@@ -249,7 +258,9 @@ let g:go_list_type = "quickfix"
 let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
 let g:go_fmt_command = "goimports"
-let g:go_fmt_fail_silently = 0
+let g:go_fmt_fail_silently = 1
+let g:go_metalinter_autosave = 0
+let g:go_metalinter_autosave_enabled = ['vet', 'golint']
 let g:go_def_reuse_buffer = 1
 let g:go_echo_command_info = 0
 let g:go_list_height = 10
@@ -265,10 +276,15 @@ function! s:build_go_files()
   endif
 endfunction
 
+autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+
 autocmd FileType go nnoremap <leader>m :<C-u>call <SID>build_go_files()<CR>
 autocmd FileType go nnoremap <Leader>r :GoRun<CR>
-autocmd FileType go nnoremap <Leader>t :GoTest<CR>
+autocmd FileType go nnoremap <Leader>t :GoTest ./...<CR>
 autocmd FileType go nnoremap <Leader>i :GoImports<CR>
+autocmd FileType go nnoremap <Leader>i :GoInfo<CR>
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 
 " -------------------------------
@@ -276,4 +292,6 @@ autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 " -------------------------------
 let g:ctrlp_map = '<Leader>p'
 let g:ctrlp_show_hidden=1
+let g:ctrlp_use_caching=0
+let g:ctrlp_clear_cache_on_exit=1
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
