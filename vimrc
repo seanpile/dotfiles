@@ -18,9 +18,7 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-unimpaired'
 Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-commentary'
-
-" NERD Tree
-Plugin 'scrooloose/nerdtree'
+Plugin 'tpope/vim-vinegar'
 
 " CtrlP
 Plugin 'kien/ctrlp.vim'
@@ -30,10 +28,6 @@ Plugin 'chaoren/vim-wordmotion'
 
 " Autocomplete
 Plugin 'ervandew/supertab'
-
-" Quickfix/Buffer Fixes
-Plugin 'qpkorr/vim-bufkill'
-Plugin 'milkypostman/vim-togglelist'
 
 " User Interface Mods
 Plugin 'altercation/vim-colors-solarized'
@@ -46,7 +40,10 @@ Plugin 'mileszs/ack.vim'
 " Golang
 Plugin 'fatih/vim-go'
 
-" Code formatter
+" Elm
+Plugin 'elmcast/elm-vim'
+
+" C/C++ Code formatter
 Plugin 'rhysd/vim-clang-format'
 
 " JavaScript
@@ -62,6 +59,8 @@ set hidden
 set belloff=all
 set number
 set scrolloff=999
+set ignorecase
+set smartcase
 set splitbelow
 set splitright
 set equalalways
@@ -102,7 +101,7 @@ noremap <Down> :clast<CR>
 " Close a buffer:  <Leader> Backspace
 " Close a window:  <Leader> w
 noremap <Leader>w :close<CR>
-noremap <Leader><BS> :BD<CR>
+noremap <Leader><BS> :bd<CR>
 
 " Convenient saving mapping (in normal or insert mode)
 if has('gui_win32')
@@ -226,30 +225,18 @@ autocmd FileType javascript nmap <Leader>f <Plug>(Prettier)
 autocmd FileType javascript setlocal expandtab tabstop=2 shiftwidth=2
 
 " -------------------------------
-" Markdown Syntax 
+" Markdown Syntax
 " -------------------------------
 autocmd FileType markdown setlocal expandtab tabstop=4 shiftwidth=4
 autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
 
 " -------------------------------
-" Turn off automappings for vim-bufkill
-" -------------------------------
-let g:BufKillCreateMappings=0
-
-" -------------------------------
 " Quickfix Configuration
 " -------------------------------
-nmap <script> <silent> <Leader>c :call ToggleQuickfixList()<CR>
-let g:toggle_list_copen_command="vertical copen 90"
 augroup quickfix
     autocmd!
     autocmd FileType qf set nobuflisted
 augroup END
-
-" -------------------------------
-" NERDTree
-" -------------------------------
-nnoremap <Leader>/ :NERDTreeToggle<CR>
 
 " -------------------------------
 " Golang Config
@@ -257,7 +244,7 @@ nnoremap <Leader>/ :NERDTreeToggle<CR>
 let g:go_list_type = "quickfix"
 let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
-let g:go_fmt_command = "goimports"
+let g:go_fmt_command = "gofmt"
 let g:go_fmt_fail_silently = 1
 let g:go_metalinter_autosave = 0
 let g:go_metalinter_autosave_enabled = ['vet', 'golint']
@@ -292,6 +279,19 @@ autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 " -------------------------------
 let g:ctrlp_map = '<Leader>p'
 let g:ctrlp_show_hidden=1
-let g:ctrlp_use_caching=0
 let g:ctrlp_clear_cache_on_exit=1
-let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
+if executable('ag')
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_use_caching=0
+else
+  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
+  let g:ctrlp_use_caching=1
+endif
+
+" -------------------------------
+" netrw
+" -------------------------------
+let g:netrw_banner = 0
+let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+,\(^\|\s\s\)ntuser\.\S\+'
+autocmd FileType netrw set nolist
+nnoremap <Leader>/ :Explore<CR>
