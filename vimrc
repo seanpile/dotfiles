@@ -18,7 +18,9 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-unimpaired'
 Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-commentary'
-Plugin 'tpope/vim-vinegar'
+
+" FileBeagle
+Plugin 'jeetsukumaran/vim-filebeagle'
 
 " CtrlP
 Plugin 'kien/ctrlp.vim'
@@ -26,8 +28,8 @@ Plugin 'kien/ctrlp.vim'
 " Modify word motions to be CamelCase/snake_case aware
 Plugin 'chaoren/vim-wordmotion'
 
-" Neocomplete
-Plugin 'shougo/neocomplete.vim'
+" Supertab
+Plugin 'ervandew/supertab'
 
 " User Interface Mods
 Plugin 'altercation/vim-colors-solarized'
@@ -267,11 +269,11 @@ autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
 autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
 autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
 
-autocmd FileType go nnoremap <leader>m :<C-u>call <SID>build_go_files()<CR>
-autocmd FileType go nnoremap <Leader>r <Plug>(go-run)
-autocmd FileType go nnoremap <Leader>t <Plug>(go-test)
-autocmd FileType go nnoremap <Leader>i <Plug>(go-info)
-autocmd FileType go nnoremap <Leader>d <Plug>(go-doc)
+autocmd FileType go nmap <silent> <leader>m :<C-u>call <SID>build_go_files()<CR>
+autocmd FileType go nmap <Leader>r <Plug>(go-run)
+autocmd FileType go nmap <Leader>t <Plug>(go-test)
+autocmd FileType go nmap <Leader>i <Plug>(go-info)
+autocmd FileType go nmap <Leader>d <Plug>(go-doc)
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 
 " -------------------------------
@@ -281,7 +283,13 @@ let g:ctrlp_map = '<Leader>p'
 let g:ctrlp_show_hidden=1
 let g:ctrlp_clear_cache_on_exit=1
 if executable('ag')
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
+      \ --ignore .git
+      \ --ignore .svn
+      \ --ignore .hg
+      \ --ignore .DS_Store
+      \ --ignore "**/*.pyc"
+      \ -g ""'
   let g:ctrlp_use_caching=0
 else
   let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
@@ -289,38 +297,8 @@ else
 endif
 
 " -------------------------------
-" netrw
+" FileBeagle
 " -------------------------------
-let g:netrw_banner = 0
-let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+,\(^\|\s\s\)ntuser\.\S\+'
-autocmd FileType netrw set nolist
-
-" -------------------------------
-" neocomplete
-" -------------------------------
-" Disable AutoComplPop.
-let g:acp_enableAtStartup = 0
-" Use neocomplete.
-let g:neocomplete#enable_at_startup = 1
-" Use smartcase.
-let g:neocomplete#enable_smart_case = 1
-" Set minimum syntax keyword length.
-let g:neocomplete#sources#syntax#min_keyword_length = 3
-
-" Plugin key-mappings.
-inoremap <expr><C-g>     neocomplete#undo_completion()
-inoremap <expr><C-l>     neocomplete#complete_common_string()
-
-" Recommended key-mappings.
-" <CR>: close popup and save indent.
-inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-function! s:my_cr_function()
-    return neocomplete#close_popup() . "\<CR>"
-endfunction
-" <TAB>: completion.
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" <C-h>, <BS>: close popup and delete backword char.
-inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-inoremap <expr><C-y>  neocomplete#close_popup()
-inoremap <expr><C-e>  neocomplete#cancel_popup()
+let g:filebeagle_suppress_keymaps = 1
+nmap <silent> <Leader>/ <Plug>FileBeagleOpenCurrentWorkingDir
+nmap <silent> -         <Plug>FileBeagleOpenCurrentBufferDir
