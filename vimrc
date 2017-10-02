@@ -26,8 +26,8 @@ Plugin 'kien/ctrlp.vim'
 " Modify word motions to be CamelCase/snake_case aware
 Plugin 'chaoren/vim-wordmotion'
 
-" Autocomplete
-Plugin 'ervandew/supertab'
+" Neocomplete
+Plugin 'shougo/neocomplete.vim'
 
 " User Interface Mods
 Plugin 'altercation/vim-colors-solarized'
@@ -244,7 +244,7 @@ augroup END
 let g:go_list_type = "quickfix"
 let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
-let g:go_fmt_command = "gofmt"
+let g:go_fmt_command = "goimports"
 let g:go_fmt_fail_silently = 1
 let g:go_metalinter_autosave = 0
 let g:go_metalinter_autosave_enabled = ['vet', 'golint']
@@ -268,10 +268,10 @@ autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit'
 autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
 
 autocmd FileType go nnoremap <leader>m :<C-u>call <SID>build_go_files()<CR>
-autocmd FileType go nnoremap <Leader>r :GoRun<CR>
-autocmd FileType go nnoremap <Leader>t :GoTest ./...<CR>
-autocmd FileType go nnoremap <Leader>i :GoImports<CR>
-autocmd FileType go nnoremap <Leader>i :GoInfo<CR>
+autocmd FileType go nnoremap <Leader>r <Plug>(go-run)
+autocmd FileType go nnoremap <Leader>t <Plug>(go-test)
+autocmd FileType go nnoremap <Leader>i <Plug>(go-info)
+autocmd FileType go nnoremap <Leader>d <Plug>(go-doc)
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 
 " -------------------------------
@@ -294,4 +294,33 @@ endif
 let g:netrw_banner = 0
 let g:netrw_list_hide = '\(^\|\s\s\)\zs\.\S\+,\(^\|\s\s\)ntuser\.\S\+'
 autocmd FileType netrw set nolist
-nnoremap <Leader>/ :Explore<CR>
+
+" -------------------------------
+" neocomplete
+" -------------------------------
+" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
+" Use neocomplete.
+let g:neocomplete#enable_at_startup = 1
+" Use smartcase.
+let g:neocomplete#enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplete#undo_completion()
+inoremap <expr><C-l>     neocomplete#complete_common_string()
+
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+    return neocomplete#close_popup() . "\<CR>"
+endfunction
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplete#close_popup()
+inoremap <expr><C-e>  neocomplete#cancel_popup()
