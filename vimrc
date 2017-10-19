@@ -22,19 +22,22 @@ Plugin 'tpope/vim-commentary'
 " FileBeagle
 Plugin 'jeetsukumaran/vim-filebeagle'
 
-" CtrlP
-Plugin 'kien/ctrlp.vim'
+" Autocomplete
+Plugin 'Valloric/YouCompleteMe'
+
+" fzf - fuzzy finding
+Plugin 'junegunn/fzf'
+Plugin 'junegunn/fzf.vim'
 
 " Modify word motions to be CamelCase/snake_case aware
 Plugin 'chaoren/vim-wordmotion'
 
-" Supertab
-Plugin 'ervandew/supertab'
-
 " User Interface Mods
 Plugin 'altercation/vim-colors-solarized'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
+Plugin 'itchyny/lightline.vim'
+
+" Fix Buffer kill behaviour
+Plugin 'qpkorr/vim-bufkill'
 
 " Better grepping
 Plugin 'mileszs/ack.vim'
@@ -71,6 +74,7 @@ set noswapfile
 set autowrite
 set wildmode=longest,list,full
 set wildmenu
+set noshowmode
 set cursorline
 set guioptions=
 set undofile
@@ -84,15 +88,6 @@ map <C-h> <C-w>h
 map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
-nnoremap <Leader>n1 :sp #1<CR>:wincmd p<CR>
-nnoremap <Leader>n2 :sp #2<CR>:wincmd p<CR>
-nnoremap <Leader>n3 :sp #3<CR>:wincmd p<CR>
-nnoremap <Leader>n4 :sp #4<CR>:wincmd p<CR>
-nnoremap <Leader>n5 :sp #5<CR>:wincmd p<CR>
-nnoremap <Leader>n6 :sp #6<CR>:wincmd p<CR>
-nnoremap <Leader>n7 :sp #7<CR>:wincmd p<CR>
-nnoremap <Leader>n8 :sp #8<CR>:wincmd p<CR>
-nnoremap <Leader>n9 :sp #9<CR>:wincmd p<CR>
 
 " Easy Navigation of Quickfix list
 noremap <Left> :cprev<CR>
@@ -100,10 +95,11 @@ noremap <Right> :cnext<CR>
 noremap <Up> :cfirst<CR>
 noremap <Down> :clast<CR>
 
-" Close a buffer:  <Leader> Backspace
-" Close a window:  <Leader> w
+" Close a buffer:    <Leader> Backspace
+" Close a window:    <Leader> w
+" List open buffers: <Leader> b
 noremap <Leader>w :close<CR>
-noremap <Leader><BS> :bd<CR>
+noremap <Leader><BS> :BD<CR>
 
 " Convenient saving mapping (in normal or insert mode)
 if has('gui_win32')
@@ -116,6 +112,17 @@ endif
 " Commenting: Make // be the default c format
 autocmd FileType c,cpp setlocal commentstring=//\ %s
 autocmd FileType c,cpp setlocal formatoptions=jrql
+
+" -------------------------------
+" Lightline
+" -------------------------------
+let g:lightline = {
+	\ 'colorscheme': 'solarized',
+	\ 'active': {
+	\   'left': [['mode', 'paste'], ['filename', 'modified']],
+	\   'right': [['lineinfo'], ['percent'], ['readonly']]
+	\ },
+\ }
 
 if has('gui_running')
     " gvim specific settings here
@@ -152,7 +159,6 @@ set encoding=utf8
 if has("gui_win32")
     set guifont=Consolas:h10:cANSI
 else
-    let g:airline_powerline_fonts = 1
     set guifont=Knack\ Regular\ Nerd\ Font\ Complete:h12
 endif
 
@@ -166,47 +172,10 @@ nnoremap <Leader>m :silent make<CR>
 " Ack.vim
 " -------------------------------
 nnoremap <Leader>g :Ack<space>
-nnoremap <Leader>k :Ack<CR>:wincmd h<CR>
 let g:ack_use_cword_for_empty_search = 1
 if executable('ag')
     let g:ackprg = 'ag --vimgrep'
 endif
-
-" -------------------------------
-" Airline
-" -------------------------------
-let g:airline_theme='solarized'
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#buffer_idx_mode = 1
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
-let g:airline#extensions#tabline#fnamemod = ':p:t'
-let g:airline#extensions#tabline#show_splits = 0
-
-nnoremap <Leader>b :ls<CR>:b<Space>
-nmap <leader>1 <Plug>AirlineSelectTab1
-nmap <leader>2 <Plug>AirlineSelectTab2
-nmap <leader>3 <Plug>AirlineSelectTab3
-nmap <leader>4 <Plug>AirlineSelectTab4
-nmap <leader>5 <Plug>AirlineSelectTab5
-nmap <leader>6 <Plug>AirlineSelectTab6
-nmap <leader>7 <Plug>AirlineSelectTab7
-nmap <leader>8 <Plug>AirlineSelectTab8
-nmap <leader>9 <Plug>AirlineSelectTab9
-nmap <leader>- <Plug>AirlineSelectPrevTab
-nmap <leader>= <Plug>AirlineSelectNextTab
-
-let g:airline#extensions#tabline#buffer_idx_format = {
-        \ '0': '0 ',
-        \ '1': '1 ',
-        \ '2': '2 ',
-        \ '3': '3 ',
-        \ '4': '4 ',
-        \ '5': '5 ',
-        \ '6': '6 ',
-        \ '7': '7 ',
-        \ '8': '8 ',
-        \ '9': '9 '
-        \}
 
 " -------------------------------
 " clang-format
@@ -251,9 +220,8 @@ let g:go_fmt_fail_silently = 1
 let g:go_metalinter_autosave = 0
 let g:go_metalinter_autosave_enabled = ['vet', 'golint']
 let g:go_def_reuse_buffer = 1
-let g:go_echo_command_info = 0
+let g:go_echo_command_info = 1
 let g:go_list_height = 10
-autocmd FileType go let g:airline_section_c = '%t %{go#statusline#Show()}'
 
 " run :GoBuild or :GoTestCompile based on the go file
 function! s:build_go_files()
@@ -277,24 +245,10 @@ autocmd FileType go nmap <Leader>d <Plug>(go-doc)
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 
 " -------------------------------
-" CtrlP
+" fzf
 " -------------------------------
-let g:ctrlp_map = '<Leader>p'
-let g:ctrlp_show_hidden=1
-let g:ctrlp_clear_cache_on_exit=1
-if executable('ag')
-  let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden
-      \ --ignore .git
-      \ --ignore .svn
-      \ --ignore .hg
-      \ --ignore .DS_Store
-      \ --ignore "**/*.pyc"
-      \ -g ""'
-  let g:ctrlp_use_caching=0
-else
-  let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files']
-  let g:ctrlp_use_caching=1
-endif
+nmap <Leader>b :Buffers<CR>
+nmap <Leader>p :Files<CR>
 
 " -------------------------------
 " FileBeagle
@@ -302,3 +256,17 @@ endif
 let g:filebeagle_suppress_keymaps = 1
 nmap <silent> <Leader>/ <Plug>FileBeagleOpenCurrentWorkingDir
 nmap <silent> -         <Plug>FileBeagleOpenCurrentBufferDir
+
+" -------------------------------
+" bufkill
+" -------------------------------
+let g:BufKillCreateMappings = 0
+
+" -------------------------------
+" YouCompleteMe
+" -------------------------------
+let g:ycm_key_list_select_completion = ['<TAB>', '<C-j>']
+let g:ycm_key_list_previous_completion = ['<C-k>']
+
+
+
