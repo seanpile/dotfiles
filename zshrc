@@ -51,7 +51,7 @@ ZSH_THEME="blinks"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git vi-mode docker docker-compose redis-cli history-substring-search)
+plugins=(git vi-mode docker docker-compose redis-cli history-substring-search go)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -86,11 +86,12 @@ source $ZSH/oh-my-zsh.sh
 
 fpath=(/usr/local/share/zsh-completions $fpath)
 
-. ~/.zsh_profile
-
 alias gs="git status"
 alias gd="git diff"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
+
+# Default editor
+export EDITOR="/usr/local/bin/vim"
 
 # fzf via Homebrew
 if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
@@ -99,7 +100,7 @@ if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
 fi
 
 # fzf + ag configuration
-export FZF_DEFAULT_COMMAND='ag --nocolor -g ""'
+export FZF_DEFAULT_COMMAND='rg --files --hidden'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
 

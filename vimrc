@@ -53,6 +53,7 @@ Plugin 'rhysd/vim-clang-format'
 
 " JavaScript
 Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
 Plugin 'mitermayer/vim-prettier'
 
 " All of your Plugins must be added before the following line
@@ -217,11 +218,10 @@ let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
 let g:go_fmt_command = "goimports"
 let g:go_fmt_fail_silently = 1
-let g:go_metalinter_autosave = 0
-let g:go_metalinter_autosave_enabled = ['vet', 'golint']
 let g:go_def_reuse_buffer = 1
 let g:go_echo_command_info = 1
 let g:go_list_height = 10
+let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
 
 " run :GoBuild or :GoTestCompile based on the go file
 function! s:build_go_files()
@@ -239,7 +239,6 @@ autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
 
 autocmd FileType go nmap <silent> <leader>m :<C-u>call <SID>build_go_files()<CR>
 autocmd FileType go nmap <Leader>r <Plug>(go-run)
-autocmd FileType go nmap <Leader>t <Plug>(go-test)
 autocmd FileType go nmap <Leader>i <Plug>(go-info)
 autocmd FileType go nmap <Leader>d <Plug>(go-doc)
 autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
@@ -248,7 +247,8 @@ autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 " fzf
 " -------------------------------
 nmap <Leader>b :Buffers<CR>
-nmap <Leader>p :Files<CR>
+nmap <Leader>t :Files<CR>
+let $FZF_DEFAULT_COMMAND="rg --files --hidden -g \!.git -g \!vendor/"
 
 " -------------------------------
 " FileBeagle
@@ -265,6 +265,7 @@ let g:BufKillCreateMappings = 0
 " -------------------------------
 " YouCompleteMe
 " -------------------------------
+set completeopt-=preview
 let g:ycm_key_list_select_completion = ['<TAB>', '<C-j>']
 let g:ycm_key_list_previous_completion = ['<C-k>']
 

@@ -1,0 +1,88 @@
+# GLOBAL CONFIGURATIONS
+# -------------------------------------------------------------------
+# See https://github.com/jigish/slate/wiki/Global-Configs
+
+config defaultToCurrentScreen true
+config secondsBeforeRepeat 0.4
+config secondsBetweenRepeat 0.1
+config keyboardLayout "qwerty"
+config nudgePercentOf screenSize
+config resizePercentOf screenSize
+config repeatOnHoldOps resize,nudge
+
+
+# HYPER KEY
+# -------------------------------------------------------------------
+# The "hyper" key is a shortcut for CMD + SHIFT + SPACE
+alias hyper cmd;shift;space
+
+
+# MONITOR ALIASES
+# -------------------------------------------------------------------
+alias monitor-macbook 1680x1050
+alias monitor-lg 4096x2304
+
+
+# APPLICATION ALIASES AND BINDINGS
+# -------------------------------------------------------------------
+alias editor 'MacVim'
+alias terminal 'Terminal'
+alias browser 'Google Chrome'
+alias spotify 'Spotify'
+alias slack 'Slack'
+
+
+# SLATE FEATURES
+# -------------------------------------------------------------------
+#
+# Show a positioning grid for each monitor
+bind g:${hyper} grid padding:5 0:6,2 1:8,3
+
+# Reload Slate configuration file
+bind s:${hyper} relaunch
+
+
+# MONITOR-BASED POSITION ALIASES
+# -------------------------------------------------------------------
+# These aliases are move windows to specific positions on a specific 
+# monitor.
+
+# Laptop monitor
+alias macbook-full move screenOriginX;screenOriginY screenSizeX;screenSizeY ${monitor-macbook}
+alias macbook-lefthalf move screenOriginX;screenOriginY screenSizeX/2;screenSizeY ${monitor-macbook}
+alias macbook-righthalf move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY ${monitor-macbook}
+alias macbook-topleft move screenOriginX;screenOriginY screenSizeX/2;screenSizeY/2 ${monitor-macbook}
+alias macbook-topright move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY/2 ${monitor-macbook}
+alias macbook-bottomleft move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2 ${monitor-macbook}
+alias macbook-bottomright move screenOriginX+screenSizeX/2;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2 ${monitor-macbook}
+alias macbook-bottomhalf move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX;screenSizeY/2 ${monitor-macbook}
+
+
+# Constrained Layout (MacBook)
+# -------------------------------------------------------------------
+layout small-layout ${editor}:REPEAT ${macbook-lefthalf}
+layout small-layout ${browser}:REPEAT ${macbook-righthalf}
+layout small-layout ${terminal}:REPEAT ${macbook-topleft} | ${macbook-topright} | ${macbook-bottomleft} | ${macbook-bottomright}
+layout small-layout ${spotify}:REPEAT ${macbook-righthalf}
+layout small-layout ${slack}:REPEAT ${macbook-bottomhalf}
+
+# Bind a key to trigger this layout
+bind /:${hyper} layout small-layout
+
+# Trigger this layout automatically when 1 monitors are present
+default small-layout resolutions:${monitor-macbook}
+
+
+# Full Layout (LG UltraFine)
+# -------------------------------------------------------------------
+#layout large-layout ${editor}:MAIN_FIRST ${macbook-lefthalf}
+#layout large-layout ${terminal}:MAIN_FIRST ${macbook-righthalf}
+#layout large-layout ${browser}:REPEAT ${macbook-rightfourfifths}
+#
+## Bind a key to trigger this layout
+#bind pad/:${hyper} layout large-layout
+#bind /:${hyper} layout large-layout
+#
+## Trigger this layout automatically when we're using external LG Monitor
+#default large-layout resolutions:${monitor-lg}
+#
