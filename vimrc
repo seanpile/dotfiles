@@ -174,8 +174,8 @@ nnoremap <Leader>m :silent make<CR>
 " -------------------------------
 nnoremap <Leader>g :Ack<space>
 let g:ack_use_cword_for_empty_search = 1
-if executable('ag')
-    let g:ackprg = 'ag --vimgrep'
+if executable('rg')
+    let g:ackprg = 'rg --vimgrep --no-heading'
 endif
 
 " -------------------------------

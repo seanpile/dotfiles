@@ -51,7 +51,9 @@ ZSH_THEME="blinks"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git vi-mode docker docker-compose redis-cli history-substring-search go)
+plugins=(zsh-nvm git vi-mode docker docker-compose redis-cli history-substring-search go)
+
+export NVM_LAZY_LOAD=true
 
 source $ZSH/oh-my-zsh.sh
 
@@ -99,7 +101,7 @@ if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
   source /usr/local/opt/fzf/shell/completion.zsh
 fi
 
-# fzf + ag configuration
+# fzf + ripgrep configuration
 export FZF_DEFAULT_COMMAND='rg --files --hidden'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"

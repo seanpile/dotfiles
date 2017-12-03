@@ -48,26 +48,31 @@ bind s:${hyper} relaunch
 # monitor.
 
 # Laptop monitor
-alias macbook-full move screenOriginX;screenOriginY screenSizeX;screenSizeY ${monitor-macbook}
-alias macbook-lefthalf move screenOriginX;screenOriginY screenSizeX/2;screenSizeY ${monitor-macbook}
-alias macbook-righthalf move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY ${monitor-macbook}
-alias macbook-topleft move screenOriginX;screenOriginY screenSizeX/2;screenSizeY/2 ${monitor-macbook}
-alias macbook-topright move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY/2 ${monitor-macbook}
-alias macbook-bottomleft move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2 ${monitor-macbook}
-alias macbook-bottomright move screenOriginX+screenSizeX/2;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2 ${monitor-macbook}
-alias macbook-bottomhalf move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX;screenSizeY/2 ${monitor-macbook}
-
+alias full move screenOriginX;screenOriginY screenSizeX;screenSizeY
+alias lefthalf move screenOriginX;screenOriginY screenSizeX/2;screenSizeY
+alias righthalf move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY
+alias topleftquarter move screenOriginX;screenOriginY screenSizeX/2;screenSizeY/2
+alias toprightquarter move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY/2
+alias bottomleftquarter move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2
+alias bottomrightquarter move screenOriginX+screenSizeX/2;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2
+alias bottomhalf move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX;screenSizeY/2
+alias left60 move screenOriginX;screenOriginY screenSizeX*0.6;screenSizeY
+alias right40 move screenOriginX+screenSizeX*0.6;screenOriginY screenSizeX*0.4;screenSizeY
 
 # Constrained Layout (MacBook)
 # -------------------------------------------------------------------
-layout small-layout ${editor}:REPEAT ${macbook-lefthalf}
-layout small-layout ${browser}:REPEAT ${macbook-righthalf}
-layout small-layout ${terminal}:REPEAT ${macbook-topleft} | ${macbook-topright} | ${macbook-bottomleft} | ${macbook-bottomright}
-layout small-layout ${spotify}:REPEAT ${macbook-righthalf}
-layout small-layout ${slack}:REPEAT ${macbook-bottomhalf}
+layout small-layout ${editor}:REPEAT ${lefthalf}
+layout small-layout ${browser}:REPEAT ${righthalf}
+layout small-layout ${spotify}:REPEAT ${righthalf}
+layout small-layout ${slack}:REPEAT ${bottomhalf}
+
+layout large-layout ${browser}:REPEAT ${left60}
+layout large-layout ${spotify}:REPEAT ${right40}
+layout large-layout ${slack}:REPEAT ${left60}
+layout large-layout ${editor}:REPEAT ${left60}
 
 # Bind a key to trigger this layout
-bind /:${hyper} layout small-layout
+bind /:${hyper} layout large-layout
 
 # Trigger this layout automatically when 1 monitors are present
 default small-layout resolutions:${monitor-macbook}
