@@ -42,19 +42,17 @@ Plugin 'qpkorr/vim-bufkill'
 " Better grepping
 Plugin 'mileszs/ack.vim'
 
-" Golang
-Plugin 'fatih/vim-go'
-
-" Elm
-Plugin 'elmcast/elm-vim'
+" Language Pack
+Plugin 'sheerun/vim-polyglot'
 
 " C/C++ Code formatter
 Plugin 'rhysd/vim-clang-format'
 
 " JavaScript
-Plugin 'pangloss/vim-javascript'
-Plugin 'mxw/vim-jsx'
 Plugin 'mitermayer/vim-prettier'
+
+" Go
+Plugin 'fatih/vim-go'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -269,5 +267,7 @@ set completeopt-=preview
 let g:ycm_key_list_select_completion = ['<TAB>', '<C-j>']
 let g:ycm_key_list_previous_completion = ['<C-k>']
 
-
-
+" -------------------------------
+" vim-polyglot
+" -------------------------------
+let g:polyglot_disabled = ['go']
