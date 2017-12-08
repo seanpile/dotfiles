@@ -26,7 +26,6 @@ Plugin 'jeetsukumaran/vim-filebeagle'
 Plugin 'Valloric/YouCompleteMe'
 
 " fzf - fuzzy finding
-Plugin 'junegunn/fzf'
 Plugin 'junegunn/fzf.vim'
 
 " Modify word motions to be CamelCase/snake_case aware
@@ -212,10 +211,9 @@ augroup END
 " Golang Config
 " -------------------------------
 let g:go_list_type = "quickfix"
-let g:go_list_autoclose = 1
 let g:go_fmt_autosave = 1
 let g:go_fmt_command = "goimports"
-let g:go_fmt_fail_silently = 1
+let g:go_fmt_fail_silently = 0
 let g:go_def_reuse_buffer = 1
 let g:go_echo_command_info = 1
 let g:go_list_height = 10
@@ -244,6 +242,7 @@ autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
 " -------------------------------
 " fzf
 " -------------------------------
+set rtp+=/usr/local/opt/fzf
 nmap <Leader>b :Buffers<CR>
 nmap <Leader>t :Files<CR>
 let $FZF_DEFAULT_COMMAND="rg --files --hidden -g \!.git -g \!vendor/"
