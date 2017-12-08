@@ -53,6 +53,9 @@ Plugin 'mitermayer/vim-prettier'
 " Go
 Plugin 'fatih/vim-go'
 
+" Rust
+Plugin 'rust-lang/rust.vim'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -270,3 +273,9 @@ let g:ycm_key_list_previous_completion = ['<C-k>']
 " vim-polyglot
 " -------------------------------
 let g:polyglot_disabled = ['go']
+
+" -------------------------------
+" rust.vim
+" -------------------------------
+let g:rustfmt_autosave=1
+autocmd BufRead,BufNewFile Cargo.toml,Cargo.lock,*.rs compiler cargo
