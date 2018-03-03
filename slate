@@ -21,6 +21,7 @@ alias hyper cmd;shift;space
 # -------------------------------------------------------------------
 alias monitor-macbook 1680x1050
 alias monitor-lg 4096x2304
+alias monitor-5k 5120x2880
 
 
 # APPLICATION ALIASES AND BINDINGS
@@ -30,14 +31,14 @@ alias terminal 'Terminal'
 alias browser 'Google Chrome'
 alias spotify 'Spotify'
 alias slack 'Slack'
+alias firefox 'Firefox'
+alias safari 'Safari'
+alias codelab 'CodeLab'
 
 
 # SLATE FEATURES
 # -------------------------------------------------------------------
 #
-# Show a positioning grid for each monitor
-bind g:${hyper} grid padding:5 0:6,2 1:8,3
-
 # Reload Slate configuration file
 bind s:${hyper} relaunch
 
@@ -56,38 +57,53 @@ alias toprightquarter move screenOriginX+screenSizeX/2;screenOriginY screenSizeX
 alias bottomleftquarter move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2
 alias bottomrightquarter move screenOriginX+screenSizeX/2;screenOriginY+screenSizeY/2 screenSizeX/2;screenSizeY/2
 alias bottomhalf move screenOriginX;screenOriginY+screenSizeY/2 screenSizeX;screenSizeY/2
+alias topleft60 move screenOriginX;screenOriginY screenSizeX*0.6;screenSizeY*0.5
+alias bottomleft60 move screenOriginX;screenOriginY+screenSizeY*0.5 screenSizeX*0.6;screenSizeY*0.5
+alias topright40 move screenOriginX+screenSizeX*0.6;screenOriginY screenSizeX*0.4;screenSizeY*0.5
+alias bottomright40 move screenOriginX+screenSizeX*0.6;screenOriginY+screenSizeY*0.5 screenSizeX*0.4;screenSizeY*0.5
 alias left60 move screenOriginX;screenOriginY screenSizeX*0.6;screenSizeY
 alias right40 move screenOriginX+screenSizeX*0.6;screenOriginY screenSizeX*0.4;screenSizeY
+alias right20 move screenOriginX+screenSizeX*0.8;screenOriginY screenSizeX*0.2;screenSizeY
+alias leftThird move screenOriginX;screenOriginY screenSizeX/3;screenSizeY
+alias middleThird move screenOriginX+screenSizeX/3;screenOriginY screenSizeX/3;screenSizeY
+alias rightThird move screenOriginX+2*screenSizeX/3;screenOriginY screenSizeX/3;screenSizeY
+alias left70 move screenOriginX;screenOriginY screenSizeX*0.7;screenSizeY
+alias right30 move screenOriginX+screenSizeX*0.7;screenOriginY screenSizeX*0.3;screenSizeY
+alias pushRight30 push right bar-resize:screenSizeX*0.3
+alias pushLeft70 push left bar-resize:screenSizeX*0.7
+alias pushRight40 push right bar-resize:screenSizeX*0.4
+alias pushLeft60 push left bar-resize:screenSizeX*0.6
 
 # Constrained Layout (MacBook)
 # -------------------------------------------------------------------
 layout small-layout ${editor}:REPEAT ${lefthalf}
-layout small-layout ${browser}:REPEAT ${righthalf}
+layout small-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${right20} | ${lefthalf}
 layout small-layout ${spotify}:REPEAT ${righthalf}
 layout small-layout ${slack}:REPEAT ${bottomhalf}
+layout small-layout ${firefox}:REPEAT ${righthalf}
+layout small-layout ${codelab}:REPEAT ${lefthalf}
 
-layout large-layout ${browser}:REPEAT ${left60}
+layout large-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${right20} | ${left60}
 layout large-layout ${spotify}:REPEAT ${right40}
 layout large-layout ${slack}:REPEAT ${left60}
 layout large-layout ${editor}:REPEAT ${left60}
+layout large-layout ${firefox}:REPEAT ${right40}
+layout large-layout ${safari}:REPEAT ${right40}
+layout large-layout ${codelab}:REPEAT ${left60}
+
+layout xl-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${right20} | ${left70}
+layout xl-layout ${spotify}:REPEAT ${right30}
+layout xl-layout ${slack}:REPEAT ${left70}
+layout xl-layout ${editor}:REPEAT ${left70}
+layout xl-layout ${firefox}:REPEAT ${right30}
+layout xl-layout ${safari}:REPEAT ${right30}
+layout xl-layout ${codelab}:REPEAT ${left70}
 
 # Bind a key to trigger this layout
-bind /:${hyper} layout large-layout
+bind /:${hyper} layout xl-layout
+bind l:${hyper} ${pushRight30}
+bind h:${hyper} ${pushLeft70}
 
 # Trigger this layout automatically when 1 monitors are present
 default small-layout resolutions:${monitor-macbook}
-
-
-# Full Layout (LG UltraFine)
-# -------------------------------------------------------------------
-#layout large-layout ${editor}:MAIN_FIRST ${macbook-lefthalf}
-#layout large-layout ${terminal}:MAIN_FIRST ${macbook-righthalf}
-#layout large-layout ${browser}:REPEAT ${macbook-rightfourfifths}
-#
-## Bind a key to trigger this layout
-#bind pad/:${hyper} layout large-layout
-#bind /:${hyper} layout large-layout
-#
-## Trigger this layout automatically when we're using external LG Monitor
-#default large-layout resolutions:${monitor-lg}
-#
+default large-layout resolutions:${monitor-5k}

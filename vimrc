@@ -22,6 +22,10 @@ Plugin 'tpope/vim-commentary'
 " FileBeagle
 Plugin 'jeetsukumaran/vim-filebeagle'
 
+" Distraction Free Writing
+Plugin 'junegunn/goyo.vim'
+Plugin 'reedes/vim-pencil'
+
 " Autocomplete
 Plugin 'Valloric/YouCompleteMe'
 
@@ -64,7 +68,6 @@ syntax on
 set hidden
 set belloff=all
 set number
-set scrolloff=999
 set ignorecase
 set smartcase
 set splitbelow
@@ -77,8 +80,10 @@ set wildmode=longest,list,full
 set wildmenu
 set noshowmode
 set cursorline
+set lazyredraw
 set guioptions=
 set undofile
+set title
 set colorcolumn=100
 set undodir=$HOME/.vim/undo
 
@@ -95,6 +100,8 @@ noremap <Left> :cprev<CR>
 noremap <Right> :cnext<CR>
 noremap <Up> :cfirst<CR>
 noremap <Down> :clast<CR>
+
+nnoremap <Leader>s :w<CR>
 
 " Close a buffer:    <Leader> Backspace
 " Close a window:    <Leader> w
@@ -150,7 +157,7 @@ else
     " -------------------------------
     " vim-colors-solarized
     " -------------------------------
-    set background=light
+    set background=dark
     colorscheme solarized
 
 endif
@@ -199,7 +206,7 @@ autocmd FileType javascript setlocal expandtab tabstop=2 shiftwidth=2
 " -------------------------------
 " Markdown Syntax
 " -------------------------------
-autocmd FileType markdown setlocal expandtab tabstop=4 shiftwidth=4
+autocmd FileType markdown setlocal expandtab tabstop=4 shiftwidth=4 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=120
 autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
 
 " -------------------------------
@@ -221,6 +228,9 @@ let g:go_def_reuse_buffer = 1
 let g:go_echo_command_info = 1
 let g:go_list_height = 10
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
+let g:go_highlight_functions = 0
+let g:go_highlight_structs = 0
+let g:go_highlight_interfaces = 0
 
 " run :GoBuild or :GoTestCompile based on the go file
 function! s:build_go_files()
@@ -279,3 +289,14 @@ let g:polyglot_disabled = ['go']
 " -------------------------------
 let g:rustfmt_autosave=1
 autocmd BufRead,BufNewFile Cargo.toml,Cargo.lock,*.rs compiler cargo
+
+" -------------------------------
+" vim-pencil
+" -------------------------------
+let g:pencil#wrapModeDefault='soft'
+let g:pencil#autoformat=1
+augroup pencil
+  autocmd!
+  autocmd FileType markdown,mkd call pencil#init({'wrap': 'soft'})
+  autocmd FileType text         call pencil#init({'wrap': 'hard'})
+augroup END

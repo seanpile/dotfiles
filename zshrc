@@ -26,7 +26,7 @@ ZSH_THEME="blinks"
 # DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
+DISABLE_AUTO_TITLE="true"
 
 # Uncomment the following line to enable command auto-correction.
 # ENABLE_CORRECTION="true"
@@ -53,6 +53,7 @@ ZSH_THEME="blinks"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(zsh-nvm git vi-mode docker docker-compose redis-cli history-substring-search go)
 
+export NVM_AUTO_USE=true
 export NVM_LAZY_LOAD=true
 
 source $ZSH/oh-my-zsh.sh
@@ -90,7 +91,7 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 
 alias gs="git status"
 alias gd="git diff"
-alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
+alias govim='vim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
 
 # Default editor
 export EDITOR="/usr/local/bin/vim"
