@@ -83,6 +83,7 @@ set cursorline
 set lazyredraw
 set guioptions=
 set undofile
+set autoread
 set title
 set colorcolumn=100
 set undodir=$HOME/.vim/undo
@@ -300,3 +301,8 @@ augroup pencil
   autocmd FileType markdown,mkd call pencil#init({'wrap': 'soft'})
   autocmd FileType text         call pencil#init({'wrap': 'hard'})
 augroup END
+
+" -------------------------------
+" goyo
+" -------------------------------
+let g:goyo_width=120
