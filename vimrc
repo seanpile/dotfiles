@@ -27,7 +27,7 @@ Plugin 'junegunn/goyo.vim'
 Plugin 'reedes/vim-pencil'
 
 " Autocomplete
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'lifepillar/vim-mucomplete'
 
 " fzf - fuzzy finding
 Plugin 'junegunn/fzf.vim'
@@ -67,6 +67,7 @@ syntax on
 
 set hidden
 set belloff=all
+set shortmess+=c
 set number
 set ignorecase
 set smartcase
@@ -79,13 +80,13 @@ set autowrite
 set wildmode=longest,list,full
 set wildmenu
 set noshowmode
-set cursorline
+"set cursorline
+"set colorcolumn=100
 set lazyredraw
 set guioptions=
 set undofile
 set autoread
 set title
-set colorcolumn=100
 set undodir=$HOME/.vim/undo
 
 " -------------------------------
@@ -274,11 +275,11 @@ nmap <silent> -         <Plug>FileBeagleOpenCurrentBufferDir
 let g:BufKillCreateMappings = 0
 
 " -------------------------------
-" YouCompleteMe
+" MUComplete
 " -------------------------------
-set completeopt-=preview
-let g:ycm_key_list_select_completion = ['<TAB>', '<C-j>']
-let g:ycm_key_list_previous_completion = ['<C-k>']
+set completeopt+=menuone
+set completeopt+=noselect
+let g:mucomplete#enable_auto_at_startup = 1
 
 " -------------------------------
 " vim-polyglot

@@ -54,7 +54,7 @@ DISABLE_AUTO_TITLE="true"
 plugins=(zsh-nvm git vi-mode docker docker-compose redis-cli history-substring-search go)
 
 export NVM_AUTO_USE=true
-export NVM_LAZY_LOAD=true
+export NVM_LAZY_LOAD=false
 
 source $ZSH/oh-my-zsh.sh
 
@@ -144,3 +144,6 @@ function chpwd() {
     emulate -L zsh
     ls -a
 }
+
+# tmuxinator support
+source ~/.bin/tmuxinator.zsh

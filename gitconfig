@@ -33,3 +33,5 @@
 	algorithm = patience
 [diff-so-fancy]
 	markEmptyLines = false
+[remote "origin"]
+	prune = true
