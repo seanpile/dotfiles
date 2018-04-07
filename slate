@@ -34,6 +34,9 @@ alias slack 'Slack'
 alias firefox 'Firefox'
 alias safari 'Safari'
 alias codelab 'CodeLab'
+alias vscode 'Code'
+alias alacritty 'Alacritty'
+alias iterm2 'iTerm2'
 
 
 # SLATE FEATURES
@@ -77,19 +80,24 @@ alias pushLeft60 push left bar-resize:screenSizeX*0.6
 # Constrained Layout (MacBook)
 # -------------------------------------------------------------------
 layout small-layout ${editor}:REPEAT ${lefthalf}
-layout small-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${right20} | ${lefthalf}
+layout small-layout ${browser}:REPEAT ${lefthalf}
 layout small-layout ${spotify}:REPEAT ${righthalf}
 layout small-layout ${slack}:REPEAT ${bottomhalf}
 layout small-layout ${firefox}:REPEAT ${righthalf}
 layout small-layout ${codelab}:REPEAT ${lefthalf}
+layout small-layout ${vscode}:REPEAT ${righthalf}
+layout small-layout ${alacritty}:REPEAT ${full}
 
-layout large-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${right20} | ${left60}
+layout large-layout ${browser}:REPEAT ${left60}
 layout large-layout ${spotify}:REPEAT ${right40}
 layout large-layout ${slack}:REPEAT ${left60}
 layout large-layout ${editor}:REPEAT ${left60}
 layout large-layout ${firefox}:REPEAT ${right40}
 layout large-layout ${safari}:REPEAT ${right40}
 layout large-layout ${codelab}:REPEAT ${left60}
+layout large-layout ${iterm2}:REPEAT ${left60}
+layout large-layout ${vscode}:REPEAT ${right40}
+layout large-layout ${alacritty}:REPEAT ${full}
 
 layout xl-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${right20} | ${left70}
 layout xl-layout ${spotify}:REPEAT ${right30}
@@ -98,6 +106,9 @@ layout xl-layout ${editor}:REPEAT ${left70}
 layout xl-layout ${firefox}:REPEAT ${right30}
 layout xl-layout ${safari}:REPEAT ${right30}
 layout xl-layout ${codelab}:REPEAT ${left70}
+layout xl-layout ${iterm2}:REPEAT ${right30}
+layout xl-layout ${vscode}:REPEAT ${right30}
+layout xl-layout ${alacritty}:REPEAT ${left70}
 
 # Bind a key to trigger this layout
 bind /:${hyper} layout xl-layout

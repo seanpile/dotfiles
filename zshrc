@@ -1,5 +1,5 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=./node_modules/.bin:$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -54,7 +54,7 @@ DISABLE_AUTO_TITLE="true"
 plugins=(zsh-nvm git vi-mode docker docker-compose redis-cli history-substring-search go)
 
 export NVM_AUTO_USE=true
-export NVM_LAZY_LOAD=false
+export NVM_LAZY_LOAD=true
 
 source $ZSH/oh-my-zsh.sh
 
@@ -91,7 +91,7 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 
 alias gs="git status"
 alias gd="git diff"
-alias govim='vim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
+alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
 
 # Default editor
 export EDITOR="/usr/local/bin/vim"
@@ -106,6 +106,9 @@ fi
 export FZF_DEFAULT_COMMAND='rg --files --hidden'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# tmuxinator
+source ~/.bin/tmuxinator.zsh
 
 _gen_fzf_default_opts() {
   local base03="234"
@@ -144,6 +147,3 @@ function chpwd() {
     emulate -L zsh
     ls -a
 }
-
-# tmuxinator support
-source ~/.bin/tmuxinator.zsh

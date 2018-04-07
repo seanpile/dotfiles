@@ -26,6 +26,9 @@ Plugin 'jeetsukumaran/vim-filebeagle'
 Plugin 'junegunn/goyo.vim'
 Plugin 'reedes/vim-pencil'
 
+" Dim inactive windows
+Plugin 'blueyed/vim-diminactive'
+
 " Autocomplete
 Plugin 'lifepillar/vim-mucomplete'
 
@@ -80,9 +83,10 @@ set autowrite
 set wildmode=longest,list,full
 set wildmenu
 set noshowmode
-"set cursorline
+set scrolloff=999
+set cursorline
 "set colorcolumn=100
-set lazyredraw
+"set lazyredraw
 set guioptions=
 set undofile
 set autoread
@@ -227,6 +231,7 @@ let g:go_fmt_autosave = 1
 let g:go_fmt_command = "goimports"
 let g:go_fmt_fail_silently = 0
 let g:go_def_reuse_buffer = 1
+let g:go_auto_type_info = 1
 let g:go_echo_command_info = 1
 let g:go_list_height = 10
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
@@ -307,3 +312,8 @@ augroup END
 " goyo
 " -------------------------------
 let g:goyo_width=120
+
+" -------------------------------
+" diminactive
+" -------------------------------
+let g:diminactive_enable_focus = 1
