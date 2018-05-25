@@ -23,14 +23,14 @@
        rotate-text       ; cycle region at point between text candidates
 
        :lang
-       cc                ; C/C++/Obj-C madness
-       data              ; config/data formats
-       emacs-lisp        ; drown in parentheses
        go                ; the hipster dialect
-       javascript        ; all(hope(abandon(ye(who(enter(here))))))
-       markdown          ; writing docs for people to ignore
-       rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
-       sh                ; she sells (ba|z)sh shells on the C xor
+       cc                ; C/C++/Obj-C madness
+       ;data              ; config/data formats
+       ;emacs-lisp        ; drown in parentheses
+       ;javascript        ; all(hope(abandon(ye(who(enter(here))))))
+       ;markdown          ; writing docs for people to ignore
+       ;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       ;sh                ; she sells (ba|z)sh shells on the C xor
        
        ; Additional disabled languages
        ;  assembly          ; assembly for fun or debugging

@@ -10,6 +10,12 @@
 (add-to-list 'default-frame-alist
 	     '(font . "Knack Nerd Font-12"))
 
+;; Initial Frame Size
+(add-to-list 'default-frame-alist '(height . 200))
+(add-to-list 'default-frame-alist '(width . 250))
+(add-to-list 'default-frame-alist '(top . 0))
+(add-to-list 'default-frame-alist '(left . 0))
+
 ;; Delay updates to give Emacs a chance for other changes
 ;; Smoother Scrolling
 (setq linum-delay t)
@@ -24,13 +30,35 @@
 		    (format "^ \\(%s\\)$"
 			    (mapconcat
 			      #'identity
-			      '("~" "Projectile.*" "WK" "SP" "\\$" "ivy" "ElDoc" "ws" "WS" "Undo-Tree")
+			      '("~" "Projectile.*" "WK" "SP" "\\$" "ivy" "ElDoc" "ws" "WS" "Undo-Tree" "snipe" "company.*")
 			      "\\|")))
 	      :config
 	      (rich-minority-mode 1))
 
 ;; Solarized Dark theme
 (def-package! solarized-theme
+	      :init
+	      ;; make the fringe stand out from the background
+              (setq solarized-distinct-fringe-background t)
+              ;; Don't change the font for some headings and titles
+              (setq solarized-use-variable-pitch nil)
+              ;; make the modeline not contrasting
+              (setq solarized-high-contrast-mode-line nil)
+              ;; Use less bolding
+              (setq solarized-use-less-bold t)
+              ;; Use more italics
+              (setq solarized-use-more-italic t)
+              ;; Use less colors for indicators such as git:gutter, flycheck and similar
+              (setq solarized-emphasize-indicators nil)
+              ;; Don't change size of org-mode headlines (but keep other size-changes)
+              (setq solarized-scale-org-headlines nil)
+              
+              ;; Avoid all font-size changes
+              (setq solarized-height-minus-1 1.0)
+              (setq solarized-height-plus-1 1.0)
+              (setq solarized-height-plus-2 1.0)
+              (setq solarized-height-plus-3 1.0)
+              (setq solarized-height-plus-4 1.0)
 	      :config
 	      (load-theme 'solarized-dark t))
 
@@ -38,21 +66,14 @@
 (def-package! smart-mode-line
 	      :after solarized-theme
 	      :init
-	      (setq sml/no-confirm-load-theme t
-		    sml/shorten-directory t
-		    sml/shorten-modes t
-		    sml/name-width 40
-		    sml/mode-width 'full)
+	      (setq sml/no-confirm-load-theme t)
 	      :config
 	      (sml/setup))
+
 
 ;; Disable parens / smartparents
 (after! paren (show-paren-mode -1))
 (after! smartparens (smartparens-global-mode -1))
-
-;; Disable flycheck in go
-(add-hook! go-mode
-	   (flycheck-mode -1))
 
 ;; Ignore whitespace issues
 (setq whitespace-style nil)

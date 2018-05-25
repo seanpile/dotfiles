@@ -19,6 +19,9 @@
       ;; Make M-x available everywhere
       :gnvime "M-x" #'execute-extended-command
       :gnvime "A-x" #'execute-extended-command
+      :gnvime "M-s" (λ! 
+                     (save-buffer)
+                     (evil-normal-state))
 
       ;; A little sandbox to run code in
       :gnvime "M-;" #'eval-expression
