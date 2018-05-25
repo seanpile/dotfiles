@@ -3,45 +3,26 @@
 
 (doom! :feature
       ;debugger          ; FIXME stepping through code, to help you add bugs
-       eval              ; run code, run (also, repls)
        (evil +everywhere); come to the dark side, we have cookies
-       file-templates    ; auto-snippets for empty files
        lookup            ; helps you navigate your code and documentation
-       spellcheck        ; tasing you for misspelling mispelling
        workspaces
 
        :completion
        (company          ; the ultimate code completion backend
         +auto            ; as-you-type code completion
         +childframe)     ; a nicer company UI (Emacs 26+ only)
-      ;helm              ; the *other* search engine for love and life
-      ;ido               ; the other *other* search engine...
-       ivy
-       ;; (ivy              ; a search engine for love and life
-       ;;  +childframe)     ; uses childframes for popups (Emacs 26+ only)
+       ivy 		 ; a search engine for love and life
 
        :ui
-       (popup            ; tame sudden yet inevitable temporary windows
-        +all             ; catch all popups that start with an asterix
-        +defaults)       ; default popup rules
-       doom              ; what makes DOOM look the way it does
-       doom-dashboard    ; a nifty splash screen for Emacs
-       doom-modeline     ; a snazzy Atom-inspired mode-line
-       doom-quit         ; DOOM quit-message prompts when you quit Emacs
        hl-todo           ; highlight TODO/FIXME/NOTE tags
-      ;unicode           ; extended unicode support for various languages
        vi-tilde-fringe   ; fringe tildes to mark beyond EOB
 
        :tools
-       dired             ; making dired pretty [functional]
-       editorconfig      ; let someone else argue about tabs vs spaces
-       electric-indent   ; smarter, keyword-based electric-indent
        eshell            ; a consistent, cross-platform shell (WIP)
        magit             ;
        rotate-text       ; cycle region at point between text candidates
 
        :lang
-       ; assembly          ; assembly for fun or debugging
        cc                ; C/C++/Obj-C madness
        data              ; config/data formats
        emacs-lisp        ; drown in parentheses
@@ -50,41 +31,44 @@
        markdown          ; writing docs for people to ignore
        rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        sh                ; she sells (ba|z)sh shells on the C xor
-       ; crystal           ; ruby at the speed of c
-       ; clojure           ; java with a lisp
-       ; csharp            ; unity, .NET, and mono shenanigans
-       ; erlang            ; an elegant language for a more civilized age
-       ; elixir            ; erlang done right
-       ; elm               ; care for a cup of TEA?
-       ; ess               ; emacs speaks statistics
-       ; (haskell +intero) ; a language that's lazier than I am
-       ; hy                ; readability of scheme w/ speed of python
-       ; (java +meghanada) ; the poster child for carpal tunnel syndrome
-       ; julia             ; a better, faster MATLAB
-       ; latex             ; writing papers in Emacs has never been so fun
-       ; ledger            ; an accounting system in Emacs
-       ; lua               ; one-based indices? one-based indices
-       ; nim               ; python + lisp at the speed of c
-       ; nix               ; I hereby declare "nix geht mehr!"
-       ; ocaml             ; an objective camel
-       ; (org              ; organize your plain life in plain text
-        ; +attach          ; custom attachment system
-        ; +babel           ; running code in org
-        ; +capture         ; org-capture in and outside of Emacs
-        ; +export          ; Exporting org to whatever you want
-        ; +present         ; Emacs for presentations
-        ; +publish)        ; Emacs+Org as a static site generator
-       ; perl              ; write code no one else can comprehend
-       ; php               ; perl's insecure younger brother
-       ; plantuml          ; diagrams for confusing people more
-       ; purescript        ; javascript, but functional
-       ; python            ; beautiful is better than ugly
-       ; rest              ; Emacs as a REST client
-       ; ruby              ; 1.step do {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       ; scala             ; java, but good
-       ; swift             ; who asked for emoji variables?
-       ; typescript        ; javascript, but better
-       ; web               ; the tubes
+       
+       ; Additional disabled languages
+       ;  assembly          ; assembly for fun or debugging
+       ;  crystal           ; ruby at the speed of c
+       ;  clojure           ; java with a lisp
+       ;  csharp            ; unity, .NET, and mono shenanigans
+       ;  erlang            ; an elegant language for a more civilized age
+       ;  elixir            ; erlang done right
+       ;  elm               ; care for a cup of TEA?
+       ;  ess               ; emacs speaks statistics
+       ;  (haskell +intero) ; a language that's lazier than I am
+       ;  hy                ; readability of scheme w/ speed of python
+       ;  (java +meghanada) ; the poster child for carpal tunnel syndrome
+       ;  julia             ; a better, faster MATLAB
+       ;  latex             ; writing papers in Emacs has never been so fun
+       ;  ledger            ; an accounting system in Emacs
+       ;  lua               ; one-based indices? one-based indices
+       ;  nim               ; python + lisp at the speed of c
+       ;  nix               ; I hereby declare "nix geht mehr!"
+       ;  ocaml             ; an objective camel
+       ;  (org              ; organize your plain life in plain text
+        ;  +attach          ; custom attachment system
+        ;  +babel           ; running code in org
+        ;  +capture         ; org-capture in and outside of Emacs
+        ;  +export          ; Exporting org to whatever you want
+        ;  +present         ; Emacs for presentations
+        ;  +publish)        ; Emacs+Org as a static site generator
+       ;  perl              ; write code no one else can comprehend
+       ;  php               ; perl's insecure younger brother
+       ;  plantuml          ; diagrams for confusing people more
+       ;  purescript        ; javascript, but functional
+       ;  python            ; beautiful is better than ugly
+       ;  rest              ; Emacs as a REST client
+       ;  ruby              ; 1.step do {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+       ;  scala             ; java, but good
+       ;  swift             ; who asked for emoji variables?
+       ;  typescript        ; javascript, but better
+       ;  web               ; the tubes
 
        ;; Applications are complex and opinionated modules that transform Emacs
        ;; toward a specific purpose. They may have additional dependencies and
@@ -109,4 +93,3 @@
 
        :private
        (seanpile +bindings +evil-commands))
-

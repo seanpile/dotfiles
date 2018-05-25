@@ -1,4 +1,4 @@
-;;; config/default/+evil-commands.el -*- lexical-binding: t; -*-
+;;; modules/private/seanpile/+evil-commands.el -*- lexical-binding: t; -*-
 ;;;###if (featurep! :feature evil)
 
 (defalias 'ex! 'evil-ex-define-cmd)

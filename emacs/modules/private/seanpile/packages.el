@@ -1,2 +1,9 @@
 ;; -*- no-byte-compile: t; -*-
-;;; config/default/packages.el
+;;; modules/private/seanpile/packages.el
+
+;; Our dependencies
+(package! solarized-theme)
+(package! smart-mode-line)
+(package! rich-minority)
+(package! ranger)
+(package! projectile)

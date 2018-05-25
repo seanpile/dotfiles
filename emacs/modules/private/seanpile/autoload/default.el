@@ -1,4 +1,4 @@
-;; config/default/autoload/default.el -*- lexical-binding: t; -*-
+;; modules/private/seanpile/autoload/default.el -*- lexical-binding: t; -*-
 
 ;;;###autoload
 (defun +default/yank-buffer-filename ()
