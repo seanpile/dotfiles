@@ -37,6 +37,7 @@ alias codelab 'CodeLab'
 alias vscode 'Code'
 alias alacritty 'Alacritty'
 alias iterm2 'iTerm2'
+alias emacs 'Emacs'
 
 
 # SLATE FEATURES
@@ -106,9 +107,10 @@ layout xl-layout ${editor}:REPEAT ${left70}
 layout xl-layout ${firefox}:REPEAT ${right30}
 layout xl-layout ${safari}:REPEAT ${right30}
 layout xl-layout ${codelab}:REPEAT ${left70}
-layout xl-layout ${iterm2}:REPEAT ${right30}
+layout xl-layout ${iterm2}:REPEAT ${left70}
 layout xl-layout ${vscode}:REPEAT ${right30}
 layout xl-layout ${alacritty}:REPEAT ${left70}
+layout xl-layout ${emacs}:REPEAT ${left70}
 
 # Bind a key to trigger this layout
 bind /:${hyper} layout xl-layout

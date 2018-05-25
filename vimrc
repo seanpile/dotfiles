@@ -19,11 +19,13 @@ Plugin 'tpope/vim-unimpaired'
 Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-commentary'
 
+" async running
+Plugin 'skywind3000/asyncrun.vim'
+
 " FileBeagle
 Plugin 'jeetsukumaran/vim-filebeagle'
 
-" Distraction Free Writing
-Plugin 'junegunn/goyo.vim'
+" Better text/markdown editing support
 Plugin 'reedes/vim-pencil'
 
 " Dim inactive windows
@@ -56,12 +58,10 @@ Plugin 'rhysd/vim-clang-format'
 
 " JavaScript
 Plugin 'mitermayer/vim-prettier'
+Plugin 'ruanyl/vim-sort-imports'
 
 " Go
 Plugin 'fatih/vim-go'
-
-" Rust
-Plugin 'rust-lang/rust.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -83,15 +83,26 @@ set autowrite
 set wildmode=longest,list,full
 set wildmenu
 set noshowmode
-set scrolloff=999
-set cursorline
-"set colorcolumn=100
-"set lazyredraw
 set guioptions=
 set undofile
 set autoread
 set title
+set cursorline
 set undodir=$HOME/.vim/undo
+set fillchars+=vert:│
+autocmd! ColorScheme * hi VertSplit ctermbg=NONE guibg=NONE
+
+" -------------------------------
+"  Speed related optimizations
+" -------------------------------
+if !has('gui_running')
+  let loaded_matchparen=1 " Don't load matchit.vim (paren/bracket matching)
+  set noshowmatch         " Don't match parentheses/brackets
+  set nocursorcolumn      " Don't paint cursor column
+  set lazyredraw          " Wait to redraw
+  set scrolljump=8        " Scroll 8 lines at a time at bottom/top
+endif
+
 
 " -------------------------------
 " Window Management
@@ -102,10 +113,13 @@ map <C-k> <C-w>k
 map <C-l> <C-w>l
 
 " Easy Navigation of Quickfix list
-noremap <Left> :cprev<CR>
-noremap <Right> :cnext<CR>
+command! Cnext try | cnext | catch | cfirst | catch | endtry
+command! Cprev try | cprev | catch | clast | catch | endtry
+noremap <Left> :Cprev<CR>
+noremap <Right> :Cnext<CR>
 noremap <Up> :cfirst<CR>
 noremap <Down> :clast<CR>
+au FileType qf wincmd J
 
 nnoremap <Leader>s :w<CR>
 
@@ -123,9 +137,6 @@ if has('gui_win32')
     inoremap ó <Esc>:w<CR>
 endif
 
-" Commenting: Make // be the default c format
-autocmd FileType c,cpp setlocal commentstring=//\ %s
-autocmd FileType c,cpp setlocal formatoptions=jrql
 
 " -------------------------------
 " Lightline
@@ -176,12 +187,6 @@ else
     set guifont=Knack\ Regular\ Nerd\ Font\ Complete:h12
 endif
 
-
-" -------------------------------
-" Make
-" -------------------------------
-nnoremap <Leader>m :silent make<CR>
-
 " -------------------------------
 " Ack.vim
 " -------------------------------
@@ -194,26 +199,41 @@ endif
 " -------------------------------
 " clang-format
 " -------------------------------
-" map to <Leader>cf in C++ code
 if executable('clang-format')
-    autocmd FileType c,cpp,objc nnoremap <buffer><Leader>f :<C-u>ClangFormat<CR>
-    autocmd FileType c,cpp,objc vnoremap <buffer><Leader>f :ClangFormat<CR>
     let g:clang_format#detect_style_file=1
     let g:clang_format#auto_formatexpr=1
 endif
-autocmd FileType c,cpp,objc setlocal expandtab tabstop=4 shiftwidth=4
+
+" -------------------------------
+" c/c++ options
+" -------------------------------
+augroup cmode
+  autocmd!
+  autocmd FileType c,cpp,objc ClangFormatAutoEnable
+  autocmd FileType c,cpp,objc setlocal commentstring=//\ %s
+  autocmd FileType c,cpp,objc setlocal formatoptions=jrql
+  autocmd FileType c,cpp,objc setlocal expandtab tabstop=4 shiftwidth=4
+augroup END
 
 " -------------------------------
 " Javascript Settings
 " -------------------------------
-autocmd FileType javascript nmap <Leader>f <Plug>(Prettier)
-autocmd FileType javascript setlocal expandtab tabstop=2 shiftwidth=2
+augroup jsmode
+  autocmd!
+  let g:prettier#autoformat = 0
+  autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.vue Prettier
+  autocmd FileType javascript,css,jsx,scss,json setlocal expandtab tabstop=2 shiftwidth=2
+augroup END
 
 " -------------------------------
 " Markdown Syntax
 " -------------------------------
-autocmd FileType markdown setlocal expandtab tabstop=4 shiftwidth=4 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=120
-autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
+augroup mdmode
+  autocmd!
+  autocmd BufWritePre *.md Prettier
+  autocmd FileType markdown setlocal expandtab tabstop=4 shiftwidth=4 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=120
+  autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
+augroup END
 
 " -------------------------------
 " Quickfix Configuration
@@ -239,32 +259,29 @@ let g:go_highlight_functions = 0
 let g:go_highlight_structs = 0
 let g:go_highlight_interfaces = 0
 
-" run :GoBuild or :GoTestCompile based on the go file
-function! s:build_go_files()
-  let l:file = expand('%')
-  if l:file =~# '^\f\+_test\.go$'
-    call go#test#Test(0, 1)
-  elseif l:file =~# '^\f\+\.go$'
-    call go#cmd#Build(0)
-  endif
-endfunction
+augroup gomode
+  autocmd!
 
-autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
-autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
-autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
-
-autocmd FileType go nmap <silent> <leader>m :<C-u>call <SID>build_go_files()<CR>
-autocmd FileType go nmap <Leader>r <Plug>(go-run)
-autocmd FileType go nmap <Leader>i <Plug>(go-info)
-autocmd FileType go nmap <Leader>d <Plug>(go-doc)
-autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4
+  autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+  autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+  autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+  
+  autocmd FileType go nmap <Leader>r <Plug>(go-run)
+  autocmd FileType go nmap <Leader>i <Plug>(go-info)
+  autocmd FileType go nmap <Leader>d <Plug>(go-doc)
+  autocmd FileType go nmap <Leader>t :GoDecls<CR>
+  autocmd FileType go nmap <Leader>T :GoDeclsDir<CR>
+  autocmd FileType go setlocal noexpandtab tabstop=4 shiftwidth=4
+  autocmd FileType go setlocal commentstring=//\ %s
+  autocmd FileType go setlocal formatoptions=jrql
+augroup END
 
 " -------------------------------
 " fzf
 " -------------------------------
 set rtp+=/usr/local/opt/fzf
 nmap <Leader>b :Buffers<CR>
-nmap <Leader>t :Files<CR>
+nmap <Leader>f :Files<CR>
 let $FZF_DEFAULT_COMMAND="rg --files --hidden -g \!.git -g \!vendor/"
 
 " -------------------------------
@@ -285,17 +302,12 @@ let g:BufKillCreateMappings = 0
 set completeopt+=menuone
 set completeopt+=noselect
 let g:mucomplete#enable_auto_at_startup = 1
+let g:mucomplete#chains = { 'sql' : ['file'] }
 
 " -------------------------------
 " vim-polyglot
 " -------------------------------
 let g:polyglot_disabled = ['go']
-
-" -------------------------------
-" rust.vim
-" -------------------------------
-let g:rustfmt_autosave=1
-autocmd BufRead,BufNewFile Cargo.toml,Cargo.lock,*.rs compiler cargo
 
 " -------------------------------
 " vim-pencil
@@ -309,11 +321,13 @@ augroup pencil
 augroup END
 
 " -------------------------------
-" goyo
-" -------------------------------
-let g:goyo_width=120
-
-" -------------------------------
 " diminactive
 " -------------------------------
 let g:diminactive_enable_focus = 1
+
+" -------------------------------
+" async / build management
+" -------------------------------
+let g:asyncrun_open = 8
+let g:asyncrun_trim = 1
+nnoremap <Leader>m :AsyncRun -post=execute\ "Cnext" -cwd=<root> ./build.macosx<CR>
