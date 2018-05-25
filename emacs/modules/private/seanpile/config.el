@@ -62,14 +62,15 @@
 	      :config
 	      (load-theme 'solarized-dark t))
 
-; Smarter modeline
-(def-package! smart-mode-line
-	      :after solarized-theme
-	      :init
-	      (setq sml/no-confirm-load-theme t)
-	      :config
-	      (sml/setup))
-
+; Better modeline
+(def-package! telephone-line
+  :init
+  (setq telephone-line-primary-left-separator 'telephone-line-flat)
+  (setq telephone-line-primary-right-separator 'telephone-line-flat)
+  (setq telephone-line-secondary-left-separator 'telephone-line-flat)
+  (setq telephone-line-secondary-right-separator 'telephone-line-flat)
+  :config
+  (telephone-line-mode 1))
 
 ;; Disable parens / smartparents
 (after! paren (show-paren-mode -1))

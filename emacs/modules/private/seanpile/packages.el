@@ -3,7 +3,7 @@
 
 ;; Our dependencies
 (package! solarized-theme)
-(package! smart-mode-line)
+(package! telephone-line)
 (package! rich-minority)
 (package! ranger)
 (package! projectile)
