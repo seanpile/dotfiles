@@ -5,12 +5,11 @@
       ;debugger          ; FIXME stepping through code, to help you add bugs
        (evil +everywhere); come to the dark side, we have cookies
        lookup            ; helps you navigate your code and documentation
-       workspaces
 
        :completion
        (company          ; the ultimate code completion backend
-        +auto            ; as-you-type code completion
         +childframe)     ; a nicer company UI (Emacs 26+ only)
+
        ivy 		 ; a search engine for love and life
 
        :ui
@@ -18,20 +17,19 @@
        vi-tilde-fringe   ; fringe tildes to mark beyond EOB
 
        :tools
-       eshell            ; a consistent, cross-platform shell (WIP)
-       magit             ;
-       rotate-text       ; cycle region at point between text candidates
+       electric-indent
+       magit
 
        :lang
        go                ; the hipster dialect
-       cc                ; C/C++/Obj-C madness
-       ;data              ; config/data formats
-       ;emacs-lisp        ; drown in parentheses
-       ;javascript        ; all(hope(abandon(ye(who(enter(here))))))
-       ;markdown          ; writing docs for people to ignore
+       emacs-lisp        ; drown in parentheses
+       markdown          ; writing docs for people to ignore
+       data              ; config/data formats
+       javascript        ; all(hope(abandon(ye(who(enter(here))))))
+       ; (cc +irony)       ; C/C++/Obj-C madness
        ;rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
        ;sh                ; she sells (ba|z)sh shells on the C xor
-       
+
        ; Additional disabled languages
        ;  assembly          ; assembly for fun or debugging
        ;  crystal           ; ruby at the speed of c
@@ -81,15 +79,6 @@
       ;(write            ; emacs as a word processor (latex + org + markdown)
       ; +wordnut         ; wordnet (wn) search
       ; +langtool)       ; a proofreader (grammar/style check) for Emacs
-
-       :collab
-      ;impatient-mode    ; show off code over HTTP
-
-       :config
-       ;; The default module set reasonable defaults for Emacs. It also provides
-       ;; a Spacemacs-inspired keybinding scheme, a custom yasnippet library,
-       ;; and additional ex commands for evil-mode. Use it as a reference for
-       ;; your own modules.
 
        :private
        (seanpile +bindings +evil-commands))

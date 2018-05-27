@@ -19,7 +19,7 @@
       ;; Make M-x available everywhere
       :gnvime "M-x" #'execute-extended-command
       :gnvime "A-x" #'execute-extended-command
-      :gnvime "M-s" (λ! 
+      :gnvime "M-s" (λ!
                      (save-buffer)
                      (evil-normal-state))
 
@@ -36,23 +36,10 @@
       :ne "M-m"   #'compile-from-project-root
 
       ;; Simple window/frame navigation/manipulation
-      :ne "M-t"   #'+workspace/new
-      :ne "M-T"   #'+workspace/display
       :ne "M-w"   #'delete-window
-      :ne "M-W"   #'delete-frame
       :ne "C-M-f" #'toggle-frame-fullscreen
       :ne "M-n"   #'evil-buffer-new
       :ne "M-N"   #'make-frame
-      :ne "M-1"   (λ! (+workspace/switch-to 0))
-      :ne "M-2"   (λ! (+workspace/switch-to 1))
-      :ne "M-3"   (λ! (+workspace/switch-to 2))
-      :ne "M-4"   (λ! (+workspace/switch-to 3))
-      :ne "M-5"   (λ! (+workspace/switch-to 4))
-      :ne "M-6"   (λ! (+workspace/switch-to 5))
-      :ne "M-7"   (λ! (+workspace/switch-to 6))
-      :ne "M-8"   (λ! (+workspace/switch-to 7))
-      :ne "M-9"   (λ! (+workspace/switch-to 8))
-      :ne "M-0"   #'+workspace/switch-to-last
 
       ;; Other sensible, textmate-esque global bindings
       :ne "M-r"   #'+eval/buffer
@@ -77,20 +64,21 @@
 
       ;; --- <leader> -------------------------------------
       (:leader
-        :desc "Pop up scratch buffer"   :nv "x"  #'doom/open-scratch-buffer
+        :desc "Pop up scratch buffer"     :nv "x"   #'open-scratch-buffer-in-other-window
 
-        ;; Most commonly used
-        :desc "Find file"                 :n "f"    #'projectile-find-file
-        :desc "Switch buffer (workspace)" :n "b"    #'persp-switch-to-buffer
-        :desc "Switch buffer"             :n "B"    #'switch-to-buffer
+        ;; Files
+        :desc "Find files"                :n "f"    #'projectile-find-file
+        :desc "Most Recent"               :n "r"    #'counsel-recentf
+        :desc "Bookmarks"                 :n "j"    #'bookmark-jump
 
+        ;; Buffers
+        :desc "Switch buffer"             :n "b"    #'switch-to-buffer
         :desc "Save Buffer"               :n "s"    #'save-buffer
         :desc "Delete Buffer"             :n "DEL"  #'kill-this-buffer
-        :desc "Delete Window"             :n "w"    #'delete-window
 
-        :desc "Toggle last popup"       :n "~"   #'+popup/toggle
-        :desc "Eval expression"         :n "`"   #'eval-expression
-        :desc "Jump to bookmark"        :n "RET" #'bookmark-jump
+        ;; Windows
+        :desc "Close all other windows"   :n "o"    #'doom/window-zoom
+        :desc "Delete Window"             :n "w"    #'delete-window
 
         (:desc "full menu" :prefix "SPC"
           ;; C-u is used by evil
@@ -103,7 +91,6 @@
             :desc "Diff Hunk"             :nv "d" #'git-gutter:previous-hunk
             :desc "Todo"                  :nv "t" #'hl-todo-previous
             :desc "Error"                 :nv "e" #'previous-error
-            :desc "Workspace"             :nv "w" #'+workspace/switch-left
             :desc "Smart jump"            :nv "h" #'smart-backward
             :desc "Spelling error"        :nv "s" #'evil-prev-flyspell-error
             :desc "Spelling correction"   :n  "S" #'flyspell-correct-previous-word-generic)
@@ -114,7 +101,6 @@
             :desc "Diff Hunk"             :nv "d" #'git-gutter:next-hunk
             :desc "Todo"                  :nv "t" #'hl-todo-next
             :desc "Error"                 :nv "e" #'next-error
-            :desc "Workspace"             :nv "w" #'+workspace/switch-right
             :desc "Spelling error"        :nv "s" #'evil-next-flyspell-error
             :desc "Spelling correction"   :n  "S" #'flyspell-correct-word-generic)
 
@@ -125,45 +111,6 @@
             :desc "Symbols"                :nv "i" #'imenu
             :desc "Symbols across buffers" :nv "I" #'imenu-anywhere
             :desc "Online providers"       :nv "o" #'+lookup/online-select)
-
-          (:desc "workspace" :prefix "TAB"
-            :desc "Display tab bar"          :n "TAB" #'+workspace/display
-            :desc "New workspace"            :n "n"   #'+workspace/new
-            :desc "Load workspace from file" :n "l"   #'+workspace/load
-            :desc "Load last session"        :n "L"   (λ! (+workspace/load-session))
-            :desc "Save workspace to file"   :n "s"   #'+workspace/save
-            :desc "Autosave current session" :n "S"   #'+workspace/save-session
-            :desc "Switch workspace"         :n "."   #'+workspace/switch-to
-            :desc "Kill all buffers"         :n "x"   #'doom/kill-all-buffers
-            :desc "Delete session"           :n "X"   #'+workspace/kill-session
-            :desc "Delete this workspace"    :n "d"   #'+workspace/delete
-            :desc "Load session"             :n "L"   #'+workspace/load-session
-            :desc "Rename workspace"         :n "r"   #'+workspace/rename
-            :desc "Next workspace"           :n "]"   #'+workspace/switch-right
-            :desc "Previous workspace"       :n "["   #'+workspace/switch-left
-            :desc "Switch to 1st workspace"  :n "1"   (λ! (+workspace/switch-to 0))
-            :desc "Switch to 2nd workspace"  :n "2"   (λ! (+workspace/switch-to 1))
-            :desc "Switch to 3rd workspace"  :n "3"   (λ! (+workspace/switch-to 2))
-            :desc "Switch to 4th workspace"  :n "4"   (λ! (+workspace/switch-to 3))
-            :desc "Switch to 5th workspace"  :n "5"   (λ! (+workspace/switch-to 4))
-            :desc "Switch to 6th workspace"  :n "6"   (λ! (+workspace/switch-to 5))
-            :desc "Switch to 7th workspace"  :n "7"   (λ! (+workspace/switch-to 6))
-            :desc "Switch to 8th workspace"  :n "8"   (λ! (+workspace/switch-to 7))
-            :desc "Switch to 9th workspace"  :n "9"   (λ! (+workspace/switch-to 8))
-            :desc "Switch to last workspace" :n "0"   #'+workspace/switch-to-last)
-
-          (:desc "buffer" :prefix "b"
-            :desc "New empty buffer"        :n "n" #'evil-buffer-new
-            :desc "Switch workspace buffer" :n "b" #'persp-switch-to-buffer
-            :desc "Switch buffer"           :n "B" #'switch-to-buffer
-            :desc "Kill buffer"             :n "k" #'kill-this-buffer
-            :desc "Kill other buffers"      :n "o" #'doom/kill-other-buffers
-            :desc "Save buffer"             :n "s" #'save-buffer
-            :desc "Pop scratch buffer"      :n "x" #'doom/open-scratch-buffer
-            :desc "Bury buffer"             :n "z" #'bury-buffer
-            :desc "Next buffer"             :n "]" #'next-buffer
-            :desc "Previous buffer"         :n "[" #'previous-buffer
-            :desc "Sudo edit this file"     :n "S" #'doom/sudo-this-file)
 
           (:desc "code" :prefix "c"
             :desc "List errors"               :n  "x" #'flycheck-list-errors
@@ -250,28 +197,18 @@
 
           (:desc "open" :prefix "o"
             :desc "Default browser"       :n  "b" #'browse-url-of-file
+            :desc "Terminal"              :n  "t" #'+projectile-run-term
+            :desc "Email"                 :n  "e" #'=email
             :desc "Debugger"              :n  "d" #'+debug/open
             :desc "REPL"                  :n  "r" #'+eval/open-repl
             :v  "r" #'+eval:repl
-            :desc "Neotree"               :n  "n" #'+neotree/open
-            :desc "Neotree: on this file" :n  "N" #'+neotree/find-this-file
-            :desc "Imenu sidebar"         :nv "i" #'imenu-list-smart-toggle
-            :desc "Terminal"              :n  "t" #'+term/open-popup-in-project
 
             ;; applications
-            :desc "APP: elfeed"           :n "E" #'=rss
-            :desc "APP: email"            :n "M" #'=email
-            :desc "APP: twitter"          :n "T" #'=twitter
-            :desc "APP: regex"            :n "X" #'=regex
-
-            ;; macos
-            (:when IS-MAC
-              :desc "Reveal in Finder"          :n "o" #'+macos/reveal-in-finder
-              :desc "Reveal project in Finder"  :n "O" #'+macos/reveal-project-in-finder
-              :desc "Send to Transmit"          :n "u" #'+macos/send-to-transmit
-              :desc "Send project to Transmit"  :n "U" #'+macos/send-project-to-transmit
-              :desc "Send to Launchbar"         :n "l" #'+macos/send-to-launchbar
-              :desc "Send project to Launchbar" :n "L" #'+macos/send-project-to-launchbar))
+            ;; :desc "APP: elfeed"           :n "E" #'=rss
+            ;; :desc "APP: email"            :n "M" #'=email
+            ;; :desc "APP: twitter"          :n "T" #'=twitter
+            ;; :desc "APP: regex"            :n "X" #'=regex
+            )
 
           (:desc "project" :prefix "p"
             :desc "Browse project"          :n  "." #'+default/browse-project
@@ -286,7 +223,6 @@
 
           (:desc "quit" :prefix "q"
             :desc "Save and quit"          :n "q" #'evil-save-and-quit
-            :desc "Quit (forget session)"  :n "Q" #'+workspace/kill-session-and-quit
             :desc "Restart Doom Emacs"     :n "r" #'restart-emacs)
 
           (:when (featurep! :tools upload)
@@ -316,10 +252,6 @@
       :m  "[a" #'evil-backward-arg
       :n  "]b" #'next-buffer
       :n  "[b" #'previous-buffer
-      :n  "]w" #'+workspace/switch-right
-      :n  "[w" #'+workspace/switch-left
-      :m  "gt" #'+workspace/switch-right
-      :m  "gT" #'+workspace/switch-left
       :m  "gd" #'+lookup/definition
       :m  "gD" #'+lookup/references
       :n  "gf" #'+lookup/file
@@ -433,7 +365,6 @@
           "C-r"     #'winner-redo
           "o"       #'doom/window-enlargen
           ;; Delete window
-          "c"       #'+workspace/close-window-or-workspace
           "C-C"     #'ace-delete-window))
 
       ;; evil-commentary

@@ -1,5 +1,8 @@
 ;; modules/private/seanpile/autoload/default.el -*- lexical-binding: t; -*-
 
+(defvar seanpile/build-command "./build.macosx"
+  "Name of build command to run from project root directory")
+
 ;;;###autoload
 (defun +default/yank-buffer-filename ()
   "Copy the current buffer's path to the kill ring."
@@ -66,3 +69,29 @@ If ARG (universal argument), runs `compile' from the current directory."
      (if arg
          #'projectile-compile-project
        #'compile))))
+
+
+;; Universal 'compiling'; just look for a special build file that can be executed
+;; from the project root.
+;;;###autoload
+(defun compile-from-project-root ()
+  "Make the current build."
+  (interactive)
+  (let ((default-directory (projectile-project-root)))
+    (if (not (file-exists-p seanpile/build-command))
+        (message "No build file present, ignoring...")
+
+      (if (one-window-p t)
+          (split-window-horizontally))
+      (switch-to-buffer-other-window "*compilation*")
+      (compile seanpile/build-command)
+      (other-window 1))))
+
+;;;###autoload
+(defun open-scratch-buffer-in-other-window ()
+  "Open the scratch buffer in the other window (or create another window if only one exists)"
+  (interactive)
+  (when (one-window-p t)
+    (split-window-horizontally)
+    (other-window))
+  (doom/open-scratch-buffer))
