@@ -1,6 +1,6 @@
-;;; modules/private/seanpile/config.el -*- lexical-binding: t; -*-
+;;; private/seanpile/config.el -*- lexical-binding: t; -*-
 
-(if (featurep! +bindings) (load! +bindings))
+(if (featurep! +bindings) (load! "+bindings"))
 
 ;;
 ;; Config
@@ -21,20 +21,21 @@
 (setq scroll-step 10)                ;; redraw 10 lines at a time
 (setq auto-window-vscroll nil)
 
+;; Ignore whitespace issues
+(setq whitespace-style nil)
+
 ;; Auto jump to first error (not warning)
 (setq compilation-auto-jump-to-first-error t
       compilation-skip-threshold 2)
 
 ;; Fix ivy sorting
-(setq ivy-sort-matches-functions-alist '((t . nil)))
+;; (setq ivy-sort-matches-functions-alist '((t . nil)))
 
 ;; Tell company auto-complete to stay out of our way, politely
-(setq
- ;; Add delay to prevent completions from showing up right away
- company-idle-delay 1
-
- ;; Don't insert template arguments, they always feels clunky
- company-go-insert-arguments nil)
+(after! company
+  (setq
+   ;; Don't insert template arguments, they always feels clunky
+   company-go-insert-arguments nil))
 
 ;; Hide minor modes
 (def-package! rich-minority
@@ -93,8 +94,6 @@
 (after! paren (show-paren-mode -1))
 (after! smartparens (smartparens-global-mode -1))
 
-;; Ignore whitespace issues
-(setq whitespace-style nil)
 
 ;; Enable automatic indenting these modes
 (set! :electric '(go-mode)
@@ -118,9 +117,12 @@
 (defun never-ever-split-a-window () nil)
 (setq split-window-preferred-function 'never-ever-split-a-window)
 
+(after! evil-escape
+  (setq evil-escape-inhibit t))
+
 (when (featurep 'evil)
   (when (featurep! +evil-commands)
-    (load! +evil-commands))
+    (load! "+evil-commands"))
 
   (when (featurep! +bindings)
     (defvar +default-repeat-forward-key ";")
@@ -129,8 +131,8 @@
     (eval-when-compile
       (defmacro do-repeat! (command next-func prev-func)
         "Makes ; and , the universal repeat-keys in evil-mode. These keys can be
-    customized by changing `+default-repeat-forward-key' and
-    `+default-repeat-backward-key'."
+customized by changing `+default-repeat-forward-key' and
+`+default-repeat-backward-key'."
         (let ((fn-sym (intern (format "+evil*repeat-%s" (doom-unquote command)))))
           `(progn
              (defun ,fn-sym (&rest _)

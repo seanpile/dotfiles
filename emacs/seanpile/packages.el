@@ -1,5 +1,5 @@
 ;; -*- no-byte-compile: t; -*-
-;;; modules/private/seanpile/packages.el
+;;; private/seanpile/packages.el
 
 ;; Our dependencies
 (package! solarized-theme)

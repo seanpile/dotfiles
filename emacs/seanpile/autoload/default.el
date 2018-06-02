@@ -1,7 +1,4 @@
-;; modules/private/seanpile/autoload/default.el -*- lexical-binding: t; -*-
-
-(defvar seanpile/build-command "./build.macosx"
-  "Name of build command to run from project root directory")
+;; config/default/autoload/default.el -*- lexical-binding: t; -*-
 
 ;;;###autoload
 (defun +default/yank-buffer-filename ()
@@ -39,8 +36,10 @@
 
 ;;;###autoload
 (defun +default/browse-snippets ()
-  (interactive) (doom-project-browse emacs-snippets-dir))
-;; NOTE No need for a browse-snippets variant, use `yas-visit-snippet-file'
+  (interactive) (doom-project-browse +snippets-dir))
+;;;###autoload
+(defun +default/find-in-snippets ()
+  (interactive) (doom-project-find-file +snippets-dir))
 
 ;;;###autoload
 (defun +default/find-in-config ()
@@ -70,6 +69,14 @@ If ARG (universal argument), runs `compile' from the current directory."
          #'projectile-compile-project
        #'compile))))
 
+;;;###autoload
+(defun +default/man-or-woman ()
+  "Invoke `man' if man is installed, otherwise use `woman'."
+  (interactive)
+  (call-interactively
+   (if (executable-find "man")
+       #'man
+     #'woman)))
 
 ;; Universal 'compiling'; just look for a special build file that can be executed
 ;; from the project root.
@@ -78,13 +85,13 @@ If ARG (universal argument), runs `compile' from the current directory."
   "Make the current build."
   (interactive)
   (let ((default-directory (projectile-project-root)))
-    (if (not (file-exists-p seanpile/build-command))
+    (if (not (file-exists-p "build.macosx"))
         (message "No build file present, ignoring...")
 
       (if (one-window-p t)
           (split-window-horizontally))
       (switch-to-buffer-other-window "*compilation*")
-      (compile seanpile/build-command)
+      (compile "./build.macosx")
       (other-window 1))))
 
 ;;;###autoload
@@ -95,3 +102,11 @@ If ARG (universal argument), runs `compile' from the current directory."
     (split-window-horizontally)
     (other-window))
   (doom/open-scratch-buffer))
+
+;;;###autoload
+(defun open-git-status-in-other-window ()
+  "Open `magit status`, focused in the current window"
+  (interactive)
+  (when (not (one-window-p t))
+    (doom/window-zoom))
+  (magit-status))

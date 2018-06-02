@@ -1,4 +1,4 @@
-;;; modules/private/seanpile/+bindings.el -*- lexical-binding: t; -*-
+;;; private/seanpile/+bindings.el -*- lexical-binding: t; -*-
 
 ;; This file defines a Spacemacs-esque keybinding scheme
 
@@ -32,42 +32,41 @@
       :ne "M-="   #'text-scale-increase
       :ne "M--"   #'text-scale-decrease
 
-      ;; Compilation
-      :ne "M-m"   #'compile-from-project-root
-
       ;; Simple window/frame navigation/manipulation
       :ne "M-w"   #'delete-window
       :ne "C-M-f" #'toggle-frame-fullscreen
-      :ne "M-n"   #'evil-buffer-new
-      :ne "M-N"   #'make-frame
+
+      ;; Compilation / Error navigation
+      :ne "M-m"   #'compile-from-project-root
+      :ne "M-n"   #'next-error
+      :ne "M-p"   #'previous-error
 
       ;; Other sensible, textmate-esque global bindings
       :ne "M-r"   #'+eval/buffer
       :ne "M-R"   #'+eval/region-and-replace
       :ne "M-b"   #'+default/compile
       :ne "M-a"   #'mark-whole-buffer
-      :ne "M-c"   #'evil-yank
       :ne "M-q"   (if (daemonp) #'delete-frame #'evil-quit-all)
       :ne "M-f"   #'swiper
-      :n  "M-s"   #'save-buffer
       :m  "A-j"   #'+default:multi-next-line
       :m  "A-k"   #'+default:multi-previous-line
       :nv "C-SPC" #'+evil:fold-toggle
+
+      ;; Copy/paste
+      :ne "M-c"      #'evil-yank
       :gnvimer "M-v" #'clipboard-yank
+
       ;; Easier window navigation
       :en "C-h"   #'evil-window-left
       :en "C-j"   #'evil-window-down
       :en "C-k"   #'evil-window-up
       :en "C-l"   #'evil-window-right
 
-      "C-x p"     #'+popup/other
-
       ;; --- <leader> -------------------------------------
       (:leader
-        :desc "Pop up scratch buffer"     :nv "x"   #'open-scratch-buffer-in-other-window
-
         ;; Files
         :desc "Find files"                :n "f"    #'projectile-find-file
+        :desc "Find files (other window)" :n "F"    #'projectile-find-file-other-window
         :desc "Most Recent"               :n "r"    #'counsel-recentf
         :desc "Bookmarks"                 :n "j"    #'bookmark-jump
 
@@ -76,14 +75,25 @@
         :desc "Save Buffer"               :n "s"    #'save-buffer
         :desc "Delete Buffer"             :n "DEL"  #'kill-this-buffer
 
-        ;; Windows
-        :desc "Close all other windows"   :n "o"    #'doom/window-zoom
-        :desc "Delete Window"             :n "w"    #'delete-window
+        ;; Window Management
+        (:desc "window" :prefix "w"
+          :desc "Close Window"            :nv "q" #'delete-window
+          :desc "Close Other Windows"     :nv "o" #'doom/window-zoom
+          :desc "Window Vertical Split"   :nv "w" #'evil-window-vsplit
+          :desc "Window Horizontal Split" :nv "x" #'evil-window-split)
+
+        ;; Git
+        :desc "Open git status"           :n "g"    #'open-git-status-in-other-window
+
+        ;; Project search
+        :desc "Project wide search"       :n "/"    #'+ivy/project-search
+
+        ;; Misc
+        :desc "Pop up scratch buffer"     :nv "x"   #'open-scratch-buffer-in-other-window
 
         (:desc "full menu" :prefix "SPC"
           ;; C-u is used by evil
           :desc "Universal argument"      :n "u"  #'universal-argument
-          :desc "window"                  :n "w"  evil-window-map
 
           (:desc "previous..." :prefix "["
             :desc "Text size"             :nv "[" #'text-scale-decrease
@@ -202,12 +212,6 @@
             :desc "Debugger"              :n  "d" #'+debug/open
             :desc "REPL"                  :n  "r" #'+eval/open-repl
             :v  "r" #'+eval:repl
-
-            ;; applications
-            ;; :desc "APP: elfeed"           :n "E" #'=rss
-            ;; :desc "APP: email"            :n "M" #'=email
-            ;; :desc "APP: twitter"          :n "T" #'=twitter
-            ;; :desc "APP: regex"            :n "X" #'=regex
             )
 
           (:desc "project" :prefix "p"
@@ -224,15 +228,6 @@
           (:desc "quit" :prefix "q"
             :desc "Save and quit"          :n "q" #'evil-save-and-quit
             :desc "Restart Doom Emacs"     :n "r" #'restart-emacs)
-
-          (:when (featurep! :tools upload)
-            (:desc "remote" :prefix "r"
-              :desc "Upload local"           :n "u" #'ssh-deploy-upload-handler
-              :desc "Upload local (force)"   :n "U" #'ssh-deploy-upload-handler-forced
-              :desc "Download remote"        :n "d" #'ssh-deploy-download-handler
-              :desc "Diff local & remote"    :n "D" #'ssh-deploy-diff-handler
-              :desc "Browse remote files"    :n "." #'ssh-deploy-browse-remote-handler
-              :desc "Detect remote changes"  :n ">" #'ssh-deploy-remote-changes-handler))
 
           (:desc "toggle" :prefix "t"
             :desc "Flyspell"               :n "s" #'flyspell-mode
@@ -273,10 +268,6 @@
 
 
       ;; --- Plugin bindings ------------------------------
-      ;; auto-yasnippet
-      :i  [C-tab] #'aya-expand
-      :nv [C-tab] #'aya-create
-
       ;; company-mode (vim-like omnicompletion)
       :i "C-@"    #'+company/complete
       :i "C-SPC"  #'+company/complete
@@ -485,32 +476,6 @@
         :n "S"   #'gist-unstar
         :n "y"   #'gist-print-current-url)
 
-      ;; helm
-      (:after helm
-        (:map helm-map
-          "ESC"        nil
-          "C-S-n"      #'helm-next-source
-          "C-S-p"      #'helm-previous-source
-          "C-u"        #'helm-delete-minibuffer-contents
-          "C-w"        #'backward-kill-word
-          "C-r"        #'evil-paste-from-register ; Evil registers in helm! Glorious!
-          "C-b"        #'backward-word
-          [left]       #'backward-char
-          [right]      #'forward-char
-          [escape]     #'helm-keyboard-quit
-          [tab]        #'helm-execute-persistent-action)
-
-        (:after helm-files
-          (:map helm-generic-files-map
-            :e "ESC"     #'helm-keyboard-quit)
-          (:map helm-find-files-map
-            "C-w" #'helm-find-files-up-one-level
-            "TAB" #'helm-execute-persistent-action))
-
-        (:after helm-ag
-          (:map helm-ag-map
-            "<backtab>"  #'helm-ag-edit)))
-
       ;; hl-todo
       :m  "]t" #'hl-todo-next
       :m  "[t" #'hl-todo-previous
@@ -558,23 +523,6 @@
       :v "C-u" #'undo-tree-undo
       :v "C-r" #'undo-tree-redo
 
-      ;; yasnippet
-      (:after yasnippet
-        (:map yas-keymap
-          "C-e"           #'+snippets/goto-end-of-field
-          "C-a"           #'+snippets/goto-start-of-field
-          "<M-right>"     #'+snippets/goto-end-of-field
-          "<M-left>"      #'+snippets/goto-start-of-field
-          "<M-backspace>" #'+snippets/delete-to-start-of-field
-          [backspace]     #'+snippets/delete-backward-char
-          [delete]        #'+snippets/delete-forward-char-or-field)
-        (:map yas-minor-mode-map
-          :ig "<tab>" yas-maybe-expand
-          :v  "<tab>" #'yas-insert-snippet
-          :ig "TAB" yas-maybe-expand
-          :v  "TAB" #'yas-insert-snippet))
-
-
       ;; --- Major mode bindings --------------------------
       (:after markdown-mode
         (:map markdown-mode-map
@@ -582,7 +530,6 @@
           "<backspace>" nil
           "<M-left>"    nil
           "<M-right>"   nil))
-
 
       ;; --- Built-in plugins -----------------------------
       (:after comint
