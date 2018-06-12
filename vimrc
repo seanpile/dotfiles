@@ -12,13 +12,15 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'chaoren/vim-wordmotion'
-Plug 'qpkorr/vim-bufkill'
+Plug 'moll/vim-bbye'
 Plug 'jeetsukumaran/vim-filebeagle'
 Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
+Plug 'vim-scripts/ingo-library'
 
 " ui mods
 Plug 'altercation/vim-colors-solarized'
 Plug 'itchyny/lightline.vim'
+Plug 'junegunn/goyo.vim'
 
 " project search
 Plug 'mileszs/ack.vim'
@@ -26,18 +28,17 @@ Plug 'mileszs/ack.vim'
 " Minimalist Autocomplete
 Plug 'lifepillar/vim-mucomplete'
 
-" Syntax/Indent for all languages
-Plug 'sheerun/vim-polyglot'
-
 " Code Formatters
 Plug 'rhysd/vim-clang-format'
 Plug 'mitermayer/vim-prettier'
 
 " Language Plugins
-Plug 'fatih/vim-go', { 'tag': 'v1.17' }
+Plug 'fatih/vim-go', { 'branch': 'gocode-change' }
+
+" Syntax/Indent for all languages
+Plug 'sheerun/vim-polyglot'
 
 call plug#end()
-
 
 " -------------------------------
 " Sensible defaults
@@ -58,21 +59,27 @@ set wildmode=longest,list,full
 set wildmenu
 set noshowmode
 set guioptions=
+set ttyfast
 set cursorline
 set undofile
 set autoread
 set title
 set scrolljump=8        " Scroll 8 lines at a time at bottom/top
 set undodir=$HOME/.vim/undo
+set fillchars=fold:-,vert:│
 
-" Make the vertical split separator less ugly
-set fillchars+=vert:│
-autocmd! ColorScheme * hi VertSplit ctermbg=NONE guibg=NONE
+augroup uistuff
+  autocmd!
+  
+  " Remove ugly background on vertical split bars
+  autocmd! ColorScheme * hi VertSplit ctermbg=NONE guibg=NONE
 
-" Jump to last position in buffer when opening a file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-endif
+  " Disable syntax highlighting for vimdiff buffers
+  autocmd BufEnter * if &diff | execute "ownsyntax off" | endif
+
+  " Jump to last position in buffer when opening a file
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+augroup END
 
 " -------------------------------
 " Speed related optimizations; on terminal, these are all needed
@@ -84,6 +91,16 @@ if !has('gui_running')
   set nocursorcolumn      " Don't paint cursor column
   set nocursorline        " Don't paint cursor line
 endif
+
+" -------------------------------
+" Preview Window
+" - Force Preview window to take up half the vertical space on the right
+" -------------------------------
+augroup preview
+  autocmd!
+  autocmd WinEnter * if &previewwindow | wincmd L | endif
+  autocmd FileType compilation nmap <buffer> q :close<cr>
+augroup END
 
 " -------------------------------
 " Lightline
@@ -147,6 +164,30 @@ if has('gui_running')
   else
     set guifont=Knack\ Regular\ Nerd\ Font\ Complete:h12
   endif
+
+  " Green Cursor, maximum visibility
+  highlight Cursor guibg=Green
+
+  " Solarized Terminal Colors
+  let g:terminal_ansi_colors = [
+        \ '#073642',
+        \ '#e9523e',
+        \ '#859900',
+        \ '#b58900',
+        \ '#268bd2',
+        \ '#d33682',
+        \ '#2aa198',
+        \ '#eee8d5',
+        \ '#002b36',
+        \ '#cb4b16',
+        \ '#586e75',
+        \ '#657b83',
+        \ '#839496',
+        \ '#6c71c4',
+        \ '#93a1a1',
+        \ '#fdf6e3',
+        \ ]
+
 endif
 
 " -------------------------------
@@ -183,7 +224,7 @@ augroup cmode
   autocmd!
   autocmd FileType c,cpp,objc ClangFormatAutoEnable
   autocmd FileType c,cpp,objc setlocal commentstring=//\ %s
-  autocmd FileType c,cpp,objc setlocal formatoptions=jrql
+  autocmd FileType c,cpp,objc setlocal formatoptions=cjrql
   autocmd FileType c,cpp,objc setlocal expandtab tabstop=4 shiftwidth=4
 augroup END
 
@@ -192,8 +233,7 @@ augroup END
 " -------------------------------
 augroup jsmode
   autocmd!
-  autocmd FileType javascript,css,jsx,scss,json silent! unnmap <LocalLeader>
-  autocmd FileType javascript,css,jsx,scss,json nmap <LocalLeader>f :Prettier<cr>
+  autocmd FileType javascript,css,jsx,scss,json nmap <buffer> <LocalLeader>f :Prettier<cr>
   autocmd FileType javascript,css,jsx,scss,json setlocal expandtab tabstop=2 shiftwidth=2
 augroup END
 
@@ -203,7 +243,7 @@ augroup END
 augroup mdmode
   autocmd!
   autocmd BufWritePre *.md Prettier
-  autocmd FileType markdown setlocal expandtab tabstop=2 shiftwidth=2 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=100
+  autocmd FileType markdown setlocal expandtab tabstop=2 shiftwidth=2 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=80
   autocmd FileType markdown let g:prettier#config#parser='markdown'
   autocmd FileType markdown let g:prettier#config#prose_wrap='always'
   autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
@@ -220,7 +260,6 @@ command! Cprev try | cprev | catch | clast | catch | endtry
 augroup quickfix
   autocmd!
   autocmd FileType qf set nobuflisted
-  autocmd FileType qf wincmd J
 augroup END
 
 " -------------------------------
@@ -246,20 +285,24 @@ augroup gomode
   autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
   autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
 
-  autocmd FileType go silent! nunmap <LocalLeader>
-  autocmd FileType go nmap <LocalLeader>r <Plug>(go-run)
-  autocmd FileType go nmap <LocalLeader>i <Plug>(go-info)
-  autocmd FileType go nmap <LocalLeader>d <Plug>(go-doc)
-  autocmd FileType go nmap <LocalLeader>t :GoDecls<CR>
-  autocmd FileType go nmap <LocalLeader>T :GoDeclsDir<CR>
+  autocmd FileType go nmap <buffer> <LocalLeader>r <Plug>(go-run)
+  autocmd FileType go nmap <buffer> <LocalLeader>i <Plug>(go-info)
+  autocmd FileType go nmap <buffer> <LocalLeader>d <Plug>(go-doc)
+  autocmd FileType go nmap <buffer> <LocalLeader>D <Plug>(go-describe)
+  autocmd FileType go nmap <buffer> <LocalLeader>f :GoFill<CR>
+  autocmd FileType go nmap <buffer> <LocalLeader>t :GoDecls<CR>
+  autocmd FileType go nmap <buffer> <LocalLeader>T :GoDeclsDir<CR>
   autocmd FileType go setlocal tabstop=4 shiftwidth=4
-  autocmd FileType go setlocal formatoptions=jrql
+  autocmd FileType go setlocal formatoptions=cjrqla
 augroup END
 
 " -------------------------------
 " fzf
 " -------------------------------
 let $FZF_DEFAULT_COMMAND="rg --files --hidden -g \!.git -g \!vendor/"
+" note: this prevents us from binding ctrl-<j/k/l/h> as window switches when
+" using fzf; see tnoremaps in keybind section
+autocmd! FileType fzf tmapclear
 
 " -------------------------------
 " FileBeagle
@@ -270,6 +313,11 @@ let g:filebeagle_suppress_keymaps = 1
 " bufkill
 " -------------------------------
 let g:BufKillCreateMappings = 0
+
+" -------------------------------
+" goyo
+" -------------------------------
+let g:goyo_width=100
 
 " -------------------------------
 " MUComplete
@@ -307,11 +355,14 @@ nnoremap <Leader>wo   :only<cr>
 nnoremap <Leader>ww   :vsp<cr>
 nnoremap <Leader>wx   :sp<cr>
 nnoremap <Leader>w    <nop>
-nnoremap <Leader><BS> :BD<cr>
+nnoremap <Leader>xo   :DeleteOtherBuffer<cr>
+nnoremap <Leader>xx   :DeleteThisBuffer<cr>
+nnoremap <Leader>x    <nop>
+nnoremap <Leader><BS> :DeleteThisBuffer<cr>
 nnoremap <C-p>        :b#<cr>
 tnoremap <C-p>        <C-W>:b#<cr>
 tnoremap <C-g>        <C-W>N
-tnoremap <C-x>        <C-W>N:BD!<cr>
+tnoremap <C-x>        <C-W>N:Bdelete!<cr>
 "  Terminal Support
 nnoremap <Leader>tt   :call OpenExistingTerminal()<cr>
 nnoremap <Leader>tn   :call OpenNewTerminal()<cr>
@@ -323,19 +374,32 @@ nnoremap <Leader>r    :History<cr>
 nnoremap <Leader>f    :Files<cr>
 nmap     -            <Plug>FileBeagleOpenCurrentBufferDir
 nmap     _            <Plug>FileBeagleOpenCurrentWorkingDir
+"  Git Support
+nnoremap <Leader>gg   :call SetupPreviewWindow()<cr>:Gstatus<cr>
+nnoremap <Leader>gp   :only<cr>:Git! pull<cr>
+nnoremap <Leader>gP   :only<cr>:G
 "  Build / Error management
 noremap  <Left>       :Cprev<cr>
 noremap  <Right>      :Cnext<cr>
 noremap  <Up>         :cfirst<cr>
 noremap  <Down>       :clast<cr>
 
+
+" -----------------------------------------------------
+"  Convenience functions for interacting with terminal;
+"  - OpenExistingTerminal searches for an existing buffer of type `terminal`
+"  and attempts to re-use that buffer
+"  - OpenNewTerminal creates a new terminal buffer with some sensible default
+"  options
+" -----------------------------------------------------
+
 function! OpenExistingTerminal()
   let termbuffers = filter(range(1, bufnr('$')), 
         \'bufexists(v:val) && getbufvar(v:val, "&buftype", "") == "terminal"')
   if len(termbuffers) > 0
-      execute 'buffer' termbuffers[0]
-      execute 'startinsert!'
-      return
+    execute 'buffer' termbuffers[0]
+    execute 'startinsert!'
+    return
   endif
 
   " Fallback to creating a new terminal
@@ -346,9 +410,73 @@ function! OpenNewTerminal()
   execute 'term ++curwin ++noclose ++kill=term'
 endfunction
 
-function! OnCompilationFinish(job, code)
 
-  let bnum = SwitchToModeWindow('*compilation*')
+" -----------------------------------------------------
+"  Below is an ongoing experiment to simulate 'compilation' mode that is
+"  present in emacs; commands are run in the preview window and output is
+"  echoed to the preview window buffer
+" -----------------------------------------------------
+function! SetupPreviewWindow()
+  if winnr('$') == 1
+    vsplit
+  elseif winnr('$') > 2 && !&previewwindow
+    only
+  endif
+endfunction
+
+function! DeleteThisBuffer()
+  execute 'Bdelete'
+
+  " Unset preview window if current window
+  if &previewwindow
+    let &previewwindow = 0
+  endif
+endfunction
+
+function! DeleteOtherBuffer()
+  let otherwin = winnr('#')
+
+  " Delete buffer in other window
+  execute "Bdelete" winbufnr(otherwin)
+
+  " Now check if other window is a preview window; if so, unset it
+  if getwinvar(otherwin, '&previewwindow', 0)
+    call setwinvar(otherwin, '&previewwindow', 0)
+  endif
+endfunction
+
+command! DeleteThisBuffer call DeleteThisBuffer();
+command! DeleteOtherBuffer call DeleteOtherBuffer();
+
+function! OnBuildFinish(job, code)
+  call OnCompilationFinish(a:job, a:code, &errorformat, 1)
+endfunction
+
+function! OnTestFinish(job, code)
+  let testformat='%f:%l%m'
+  call OnCompilationFinish(a:job, a:code, testformat, 0)
+endfunction
+
+function! OnCompilationFinish(job, code, efm, loadqf)
+
+  " If job was killed early, then just return
+  if a:code < 0
+    return
+  endif
+
+  let bnum = bufnr('*compilation*')
+  if bnum < 0
+    return
+  endif
+
+  " Open Compilation Buffer in preview window
+  call ingo#window#preview#GotoPreview()
+
+  " If we don't currently have our compilation buffer loaded, load it now
+  if winbufnr(0) != bnum
+    execute bnum 'buffer'
+  endif
+
   let binfo = getbufinfo(bnum)[0]
   let blines = get(binfo, 'lnum')
 
@@ -356,14 +484,25 @@ function! OnCompilationFinish(job, code)
   " TODO: Highlight errors in buffer
 
   setlocal modifiable
-  call append(blines, [
-        \"",
-        \"Finished at " . strftime("%a %d %b %T")
-        \])
+  if a:code == 0 
+    call append(blines, [
+          \"",
+          \"Finished successfully at " . strftime("%a %d %b %T")
+          \])
+  else
+    call append(blines, [
+          \"",
+          \"Finished abnormally with code " . a:code . " at " . strftime("%a %d %b %T")
+          \])
+  endif
   setlocal nomodifiable
 
   " Switch back to previous window
   wincmd p
+
+  if !a:loadqf
+    return
+  endif
 
   " If there is an error building, load the buffer into the quickfix list,
   " skipping the header/footer.
@@ -372,7 +511,8 @@ function! OnCompilationFinish(job, code)
     call setqflist([], 'r')
   else
     " Send all error lines into qf list
-    let qflist = getqflist({'lines': getbufline(bnum, 2, blines)})
+    let qflist = getqflist({'all': 1, 'efm': a:efm, 'lines': getbufline(bnum, 3, blines)})
+    echom string(qflist)
     let alllines = get(qflist, 'items', [])
     let errorlines = filter(alllines, 'get(v:val, "valid", 0) == 1')
     call setqflist(errorlines, 'r')
@@ -381,61 +521,46 @@ function! OnCompilationFinish(job, code)
 
 endfunction
 
-function! SwitchToModeWindow(mode)
+function! RunCompilation(command, description, onFinish)
 
-  " Find existing window that has the mode window (if any exists)
-  for wnum in range(1, winnr('$'))
-    let bnum = winbufnr(wnum)
-    if a:mode == bufname(bnum)
-      call win_gotoid(win_getid(wnum))
-      return bnum
-    endif
-  endfor
-
-
-  " Pick a suitable window to jump to to display the compilation buffer
-  " TODO: Better selection process
-  let curwin = winnr()
-  let found = 0
-  for wnum in range(1, winnr('$'))
-    if wnum != curwin
-      let found = wnum
-      call win_gotoid(win_getid(wnum))
-      break
-    endif
-  endfor
-
-  " If no window was found, it probably means there was only 1 window
-  " Split a new one.
-  if found == 0
-    vsplit
+  if exists("g:seanpile_last_job")
+    call job_stop(g:seanpile_last_job, "kill")
   endif
 
-  " Bring up buffer and set read only properties on it
-  execute 'edit' a:mode
-  setlocal filetype=compilation-mode
+  if !&previewwindow && winnr('$') > 1
+    only
+  endif
+
+  " Save all open files first
+  execute 'wall'
+
+  " Open Compilation Buffer in preview window
+  call ingo#window#preview#OpenPreview()
+
+  let bname = '*compilation*'
+  execute 'silent edit' bname
+  setlocal filetype=compilation
   setlocal buftype=nofile
   setlocal nomodifiable
+  setlocal nobuflisted
   setlocal nonumber
-  return bufnr(a:mode)
-
-endfunction
-
-function! RunCompilation(command, description)
-
-  " Switch to compilation window and return buffer number
-  let bnum = SwitchToModeWindow('*compilation*')
+  let bnum = bufnr(bname)
 
   " Show compilation header
   setlocal modifiable
-  normal! ggdG
+  silent! normal! ggdG
   call append(0, [
         \a:description . " started at " . strftime("%a %d %b %T")
         \])
   setlocal nomodifiable
 
-  call job_start(a:command, {
-        \'exit_cb': 'OnCompilationFinish',
+  " Set error/success syntax matches
+  syntax match Error /\v^[^:\ \t]+:\d+:(\d+:)?/
+  syntax match Error /\v abnormally with code \d+/
+  syntax match Statement /\v successfully /
+
+  let g:seanpile_last_job = job_start(a:command, {
+        \'exit_cb': a:onFinish,
         \'out_modifiable': 0,
         \'out_io': 'buffer',
         \'out_buf': bnum,
@@ -449,6 +574,8 @@ function! RunCompilation(command, description)
 
 endfunction
 
-nnoremap <Leader>m  :call RunCompilation("./build.macosx", "Compilation")<cr>
+command! CompilationBuild call RunCompilation("./build.macosx", "Compilation", "OnBuildFinish")
+command! CompilationTest call RunCompilation("./test.macosx", "Testing", "OnTestFinish")
 
-autocmd WinEnter * if &previewwindow && winnr() > 1 | wincmd H | endif
+nnoremap <Leader>m  :CompilationBuild<cr>
+nnoremap <Leader>1  :CompilationTest<cr>
