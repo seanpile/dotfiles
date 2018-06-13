@@ -162,7 +162,7 @@ if has('gui_running')
   if has("gui_win32")
     set guifont=Consolas:h10:cANSI
   else
-    set guifont=Knack\ Regular\ Nerd\ Font\ Complete:h12
+    set guifont=Hack\ Regular\ Nerd\ Font\ Complete:h12
   endif
 
   " Green Cursor, maximum visibility
@@ -285,8 +285,8 @@ augroup gomode
   autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
   autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
 
-  autocmd FileType go nmap <buffer> <LocalLeader>r <Plug>(go-run)
-  autocmd FileType go nmap <buffer> <LocalLeader>i <Plug>(go-info)
+  autocmd FileType go nmap <buffer> <LocalLeader>r <Plug>(go-rename)
+  autocmd FileType go nmap <buffer> <LocalLeader>i <Plug>(go-import)
   autocmd FileType go nmap <buffer> <LocalLeader>d <Plug>(go-doc)
   autocmd FileType go nmap <buffer> <LocalLeader>D <Plug>(go-describe)
   autocmd FileType go nmap <buffer> <LocalLeader>f :GoFill<CR>
@@ -300,9 +300,6 @@ augroup END
 " fzf
 " -------------------------------
 let $FZF_DEFAULT_COMMAND="rg --files --hidden -g \!.git -g \!vendor/"
-" note: this prevents us from binding ctrl-<j/k/l/h> as window switches when
-" using fzf; see tnoremaps in keybind section
-autocmd! FileType fzf tmapclear
 
 " -------------------------------
 " FileBeagle
@@ -360,7 +357,7 @@ nnoremap <Leader>xx   :DeleteThisBuffer<cr>
 nnoremap <Leader>x    <nop>
 nnoremap <Leader><BS> :DeleteThisBuffer<cr>
 nnoremap <C-p>        :b#<cr>
-tnoremap <C-p>        <C-W>:b#<cr>
+tnoremap <C-p>        <C-W>N:b#<cr>
 tnoremap <C-g>        <C-W>N
 tnoremap <C-x>        <C-W>N:Bdelete!<cr>
 "  Terminal Support
@@ -454,7 +451,7 @@ endfunction
 
 function! OnTestFinish(job, code)
   let testformat='%f:%l%m'
-  call OnCompilationFinish(a:job, a:code, testformat, 0)
+  call OnCompilationFinish(a:job, a:code, testformat, 1)
 endfunction
 
 function! OnCompilationFinish(job, code, efm, loadqf)
