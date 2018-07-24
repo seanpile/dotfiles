@@ -8,13 +8,13 @@ call plug#begin('~/.vim/plugged')
 
 " core
 Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'chaoren/vim-wordmotion'
 Plug 'moll/vim-bbye'
 Plug 'jeetsukumaran/vim-filebeagle'
-Plug '/usr/local/opt/fzf' | Plug 'junegunn/fzf.vim'
+Plug '/usr/local/opt/fzf' 
+Plug 'junegunn/fzf.vim'
 Plug 'vim-scripts/ingo-library'
 
 " ui mods
@@ -33,7 +33,7 @@ Plug 'rhysd/vim-clang-format'
 Plug 'mitermayer/vim-prettier'
 
 " Language Plugins
-Plug 'fatih/vim-go', { 'branch': 'gocode-change' }
+Plug 'fatih/vim-go'
 
 " Syntax/Indent for all languages
 Plug 'sheerun/vim-polyglot'
@@ -72,13 +72,14 @@ augroup uistuff
   autocmd!
   
   " Remove ugly background on vertical split bars
-  autocmd! ColorScheme * hi VertSplit ctermbg=NONE guibg=NONE
+  autocmd ColorScheme * hi VertSplit ctermbg=NONE guibg=NONE
 
   " Disable syntax highlighting for vimdiff buffers
   autocmd BufEnter * if &diff | execute "ownsyntax off" | endif
 
   " Jump to last position in buffer when opening a file
   autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
 augroup END
 
 " -------------------------------
@@ -90,6 +91,7 @@ if !has('gui_running')
   set noshowmatch         " Don't match parentheses/brackets
   set nocursorcolumn      " Don't paint cursor column
   set nocursorline        " Don't paint cursor line
+  set synmaxcol=120
 endif
 
 " -------------------------------
@@ -109,32 +111,14 @@ augroup END
 let g:lightline = {
       \ 'colorscheme': 'solarized',
       \ 'active': {
-      \   'left': [['mode', 'paste'], ['filename', 'gitversion', 'modified']],
+      \   'left': [['mode', 'paste'], ['filename', 'modified']],
       \   'right': [['lineinfo'], ['percent'], ['readonly']]
       \ },
       \ 'inactive': {
-      \   'left': [ [ 'filename', 'gitversion' ] ],
+      \   'left': [ [ 'filename' ] ],
       \   'right': [ [ 'lineinfo' ], [ 'percent' ] ]
-      \ },
-      \ 'component_function': {
-      \   'gitversion': 'LightLineGitversion'
       \ }
       \}
-
-function! LightLineGitversion()
-  let fullname = expand('%')
-  let gitversion = ''
-  if fullname =~? 'fugitive://.*/\.git//0/.*'
-      let gitversion = 'git index'
-  elseif fullname =~? 'fugitive://.*/\.git//2/.*'
-      let gitversion = 'git target'
-  elseif fullname =~? 'fugitive://.*/\.git//3/.*'
-      let gitversion = 'git merge'
-  elseif &diff == 1
-      let gitversion = 'working copy'
-  endif
-  return gitversion
-endfunction
 
 " -------------------------------
 " vim-colors-solarized
@@ -281,25 +265,37 @@ let g:go_highlight_interfaces = 0
 augroup gomode
   autocmd!
 
-  autocmd Filetype go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
-  autocmd Filetype go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
-  autocmd Filetype go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
+  autocmd FileType go command! -bang A call go#alternate#Switch(<bang>0, 'edit')
+  autocmd FileType go command! -bang AV call go#alternate#Switch(<bang>0, 'vsplit')
+  autocmd FileType go command! -bang AS call go#alternate#Switch(<bang>0, 'split')
 
   autocmd FileType go nmap <buffer> <LocalLeader>r <Plug>(go-rename)
-  autocmd FileType go nmap <buffer> <LocalLeader>i <Plug>(go-import)
   autocmd FileType go nmap <buffer> <LocalLeader>d <Plug>(go-doc)
   autocmd FileType go nmap <buffer> <LocalLeader>D <Plug>(go-describe)
+  autocmd FileType go nmap <buffer> <LocalLeader>I <Plug>(go-implements)
+  autocmd FileType go nmap <buffer> <LocalLeader>i :GoImpl<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>f :GoFill<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>t :GoDecls<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>T :GoDeclsDir<CR>
   autocmd FileType go setlocal tabstop=4 shiftwidth=4
-  autocmd FileType go setlocal formatoptions=cjrqla
+  autocmd FileType go setlocal formatoptions=cjrql
 augroup END
 
 " -------------------------------
-" fzf
+"  fzf config
 " -------------------------------
-let $FZF_DEFAULT_COMMAND="rg --files --hidden -g \!.git -g \!vendor/"
+augroup fzf
+  autocmd!
+
+  " Send ctrl-j/ctrl-k to fzf instead of trying to jump between windows
+  autocmd FileType fzf tnoremap <expr> <buffer> <C-j> SendToTerm("\<c-j>")
+  autocmd FileType fzf tnoremap <expr> <buffer> <C-k> SendToTerm("\<c-k>")
+augroup END
+
+func SendToTerm(what)
+  call term_sendkeys('', a:what)
+  return ''
+endfunc
 
 " -------------------------------
 " FileBeagle
@@ -351,13 +347,12 @@ nnoremap <Leader>wq   :close<cr>
 nnoremap <Leader>wo   :only<cr>
 nnoremap <Leader>ww   :vsp<cr>
 nnoremap <Leader>wx   :sp<cr>
+nnoremap <Leader>wp   :b#<cr>
 nnoremap <Leader>w    <nop>
-nnoremap <Leader>xo   :DeleteOtherBuffer<cr>
-nnoremap <Leader>xx   :DeleteThisBuffer<cr>
+nnoremap <Leader>xo   :execute 'Bdelete' winbufnr(winnr('#'))<cr>
+nnoremap <Leader>xx   :Bdelete<cr>
 nnoremap <Leader>x    <nop>
-nnoremap <Leader><BS> :DeleteThisBuffer<cr>
-nnoremap <C-p>        :b#<cr>
-tnoremap <C-p>        <C-W>N:b#<cr>
+nnoremap <Leader><BS> :Bdelete<cr>
 tnoremap <C-g>        <C-W>N
 tnoremap <C-x>        <C-W>N:Bdelete!<cr>
 "  Terminal Support
@@ -371,16 +366,15 @@ nnoremap <Leader>r    :History<cr>
 nnoremap <Leader>f    :Files<cr>
 nmap     -            <Plug>FileBeagleOpenCurrentBufferDir
 nmap     _            <Plug>FileBeagleOpenCurrentWorkingDir
-"  Git Support
-nnoremap <Leader>gg   :call SetupPreviewWindow()<cr>:Gstatus<cr>
-nnoremap <Leader>gp   :only<cr>:Git! pull<cr>
-nnoremap <Leader>gP   :only<cr>:G
 "  Build / Error management
+nnoremap <C-n>        :Cnext<cr>
+nnoremap <C-p>        :Cprev<cr>
 noremap  <Left>       :Cprev<cr>
 noremap  <Right>      :Cnext<cr>
 noremap  <Up>         :cfirst<cr>
 noremap  <Down>       :clast<cr>
-
+nnoremap <Leader>m    :CompilationBuild<cr>
+nnoremap <Leader>1    :CompilationTest<cr>
 
 " -----------------------------------------------------
 "  Convenience functions for interacting with terminal;
@@ -389,7 +383,6 @@ noremap  <Down>       :clast<cr>
 "  - OpenNewTerminal creates a new terminal buffer with some sensible default
 "  options
 " -----------------------------------------------------
-
 function! OpenExistingTerminal()
   let termbuffers = filter(range(1, bufnr('$')), 
         \'bufexists(v:val) && getbufvar(v:val, "&buftype", "") == "terminal"')
@@ -413,44 +406,12 @@ endfunction
 "  present in emacs; commands are run in the preview window and output is
 "  echoed to the preview window buffer
 " -----------------------------------------------------
-function! SetupPreviewWindow()
-  if winnr('$') == 1
-    vsplit
-  elseif winnr('$') > 2 && !&previewwindow
-    only
-  endif
-endfunction
-
-function! DeleteThisBuffer()
-  execute 'Bdelete'
-
-  " Unset preview window if current window
-  if &previewwindow
-    let &previewwindow = 0
-  endif
-endfunction
-
-function! DeleteOtherBuffer()
-  let otherwin = winnr('#')
-
-  " Delete buffer in other window
-  execute "Bdelete" winbufnr(otherwin)
-
-  " Now check if other window is a preview window; if so, unset it
-  if getwinvar(otherwin, '&previewwindow', 0)
-    call setwinvar(otherwin, '&previewwindow', 0)
-  endif
-endfunction
-
-command! DeleteThisBuffer call DeleteThisBuffer();
-command! DeleteOtherBuffer call DeleteOtherBuffer();
-
 function! OnBuildFinish(job, code)
   call OnCompilationFinish(a:job, a:code, &errorformat, 1)
 endfunction
 
 function! OnTestFinish(job, code)
-  let testformat='%f:%l%m'
+  let testformat='%f:%l:%m'
   call OnCompilationFinish(a:job, a:code, testformat, 1)
 endfunction
 
@@ -466,36 +427,22 @@ function! OnCompilationFinish(job, code, efm, loadqf)
     return
   endif
 
-  " Open Compilation Buffer in preview window
-  call ingo#window#preview#GotoPreview()
+  " Output of job, excluding header
+	let blines = getbufline(bnum, 3,  '$')
 
-  " If we don't currently have our compilation buffer loaded, load it now
-  if winbufnr(0) != bnum
-    execute bnum 'buffer'
-  endif
-
-  let binfo = getbufinfo(bnum)[0]
-  let blines = get(binfo, 'lnum')
-
-  " TODO: Highlight error in `Compilation finished tag...`
-  " TODO: Highlight errors in buffer
-
-  setlocal modifiable
+  call setbufvar(bnum, '&modifiable', 1)
   if a:code == 0 
-    call append(blines, [
+    call appendbufline(bnum, '$', [
           \"",
           \"Finished successfully at " . strftime("%a %d %b %T")
           \])
   else
-    call append(blines, [
+    call appendbufline(bnum, '$', [
           \"",
           \"Finished abnormally with code " . a:code . " at " . strftime("%a %d %b %T")
           \])
   endif
-  setlocal nomodifiable
-
-  " Switch back to previous window
-  wincmd p
+  call setbufvar(bnum, '&modifiable', 0)
 
   if !a:loadqf
     return
@@ -508,8 +455,7 @@ function! OnCompilationFinish(job, code, efm, loadqf)
     call setqflist([], 'r')
   else
     " Send all error lines into qf list
-    let qflist = getqflist({'all': 1, 'efm': a:efm, 'lines': getbufline(bnum, 3, blines)})
-    echom string(qflist)
+    let qflist = getqflist({'all': 1, 'efm': a:efm, 'lines': blines})
     let alllines = get(qflist, 'items', [])
     let errorlines = filter(alllines, 'get(v:val, "valid", 0) == 1')
     call setqflist(errorlines, 'r')
@@ -524,17 +470,28 @@ function! RunCompilation(command, description, onFinish)
     call job_stop(g:seanpile_last_job, "kill")
   endif
 
-  if !&previewwindow && winnr('$') > 1
-    only
-  endif
-
   " Save all open files first
   execute 'wall'
 
-  " Open Compilation Buffer in preview window
-  call ingo#window#preview#OpenPreview()
-
   let bname = '*compilation*'
+  let bnum = bufnr(bname)
+  let cwid = -1
+  if bnum >= 0
+    for wnum in range(1, winnr('$'))
+      if winbufnr(wnum) == bnum
+        let cwid = win_getid(wnum)
+      endif
+    endfor
+  endif
+
+  if cwid >= 0
+    " Go to existing window with compilation buffer if it exists
+    call win_gotoid(cwid)
+  else
+    " Otherwise, open up a new vertical split
+    execute 'silent vsplit'
+  endif
+
   execute 'silent edit' bname
   setlocal filetype=compilation
   setlocal buftype=nofile
@@ -574,5 +531,62 @@ endfunction
 command! CompilationBuild call RunCompilation("./build.macosx", "Compilation", "OnBuildFinish")
 command! CompilationTest call RunCompilation("./test.macosx", "Testing", "OnTestFinish")
 
-nnoremap <Leader>m  :CompilationBuild<cr>
-nnoremap <Leader>1  :CompilationTest<cr>
+
+" SplitInOtherWindow is called on new windows to maintain a dual-pane window
+" layout.
+function! SplitInOtherWindow()
+
+  " Ignore when using goyo
+  if exists('t:goyo_master')
+    return
+  endif
+
+  " Allow horizontal splits to occur
+  let screenpos = win_screenpos(winnr())
+  if screenpos[0] > 1
+    return
+  endif
+
+  " If we only have two columns, allow split to continue
+  let columns = []
+  for cwin in range(1, winnr('$'))
+    let col = win_screenpos(cwin)[1]
+    call add(columns, win_screenpos(cwin)[1])
+  endfor
+
+  if len(uniq(columns)) <= 2
+    return
+  endif
+
+  " If we only have two windows, don't do anything
+  let lwin = winnr('$')
+  if lwin <= 2
+    return
+  endif
+
+  " Go through existing windows and see if there are any horizontal splits
+  let cwin = 1
+  while cwin <= lwin
+    let row = win_screenpos(cwin)[0]
+    if row > 1
+      execute cwin . 'quit'
+      let lwin -= 1
+    else
+      let cwin += 1
+    endif
+  endwhile
+
+  " Now rotate windows and close the one after the just recently opened window
+  wincmd r
+  let cwin = winnr()
+  let nwin = cwin + 1
+  if nwin > lwin
+    let nwin = 1
+  endif
+  execute nwin . 'quit'
+endfunction
+
+augroup windowlayout
+  autocmd!
+  autocmd WinNew * call SplitInOtherWindow()
+augroup END

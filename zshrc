@@ -1,6 +1,3 @@
-# If you come from bash you might have to change your $PATH.
-export PATH=./node_modules/.bin:$HOME/bin:/usr/local/bin:$PATH
-
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
@@ -92,9 +89,10 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 alias gs="git status"
 alias gd="git diff"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
+alias emacs='open /Applications/Emacs --args --title ${PWD##*/}'
 
 # Default editor
-export EDITOR="/usr/local/bin/vim"
+export EDITOR="vim"
 
 # fzf via Homebrew
 if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
@@ -106,9 +104,6 @@ fi
 export FZF_DEFAULT_COMMAND='rg --files --hidden'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
-
-# tmuxinator
-source ~/.bin/tmuxinator.zsh
 
 _gen_fzf_default_opts() {
   local base03="234"
@@ -135,15 +130,11 @@ _gen_fzf_default_opts() {
     --color fg:-1,bg:-1,hl:$blue,fg+:$base2,bg+:$base02,hl+:$blue
     --color info:$yellow,prompt:$yellow,pointer:$base3,marker:$base3,spinner:$yellow
   "
-  ## Solarized Light color scheme for fzf
-  #export FZF_DEFAULT_OPTS="
-  #  --color fg:-1,bg:-1,hl:$blue,fg+:$base02,bg+:$base2,hl+:$blue
-  #  --color info:$yellow,prompt:$yellow,pointer:$base03,marker:$base03,spinner:$yellow
-  #"
 }
 _gen_fzf_default_opts
 
-function chpwd() {
-    emulate -L zsh
-    ls -a
+# Ondir configuration
+eval_ondir() {
+  eval "`ondir \"$OLDPWD\" \"$PWD\"`"
 }
+chpwd_functions=( eval_ondir $chpwd_functions )
