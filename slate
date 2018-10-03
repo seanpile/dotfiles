@@ -36,6 +36,8 @@ alias safari 'Safari'
 alias iterm2 'iTerm2'
 alias emacs 'Emacs'
 alias alacritty 'Alacritty'
+alias vscode 'Code'
+alias goland 'GoLand'
 
 
 # SLATE FEATURES
@@ -111,6 +113,8 @@ layout xl-layout ${iterm2}:REPEAT ${full}
 layout xl-layout ${emacs}:REPEAT ${left70}
 layout xl-layout ${terminal}:REPEAT ${full}
 layout xl-layout ${alacritty}:REPEAT ${full}
+layout xl-layout ${vscode}:REPEAT ${full}
+layout xl-layout ${goland}:REPEAT ${full}
 
 # Bind a key to trigger this layout
 bind /:${hyper} layout xl-layout

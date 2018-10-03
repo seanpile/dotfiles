@@ -88,6 +88,7 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 
 alias gs="git status"
 alias gd="git diff"
+alias gds="git diff --staged"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
 alias emacs='open /Applications/Emacs --args --title ${PWD##*/}'
 

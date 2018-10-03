@@ -15,12 +15,10 @@ Plug 'moll/vim-bbye'
 Plug 'jeetsukumaran/vim-filebeagle'
 Plug '/usr/local/opt/fzf' 
 Plug 'junegunn/fzf.vim'
-Plug 'vim-scripts/ingo-library'
 
 " ui mods
 Plug 'altercation/vim-colors-solarized'
 Plug 'itchyny/lightline.vim'
-Plug 'junegunn/goyo.vim'
 
 " project search
 Plug 'mileszs/ack.vim'
@@ -67,6 +65,7 @@ set title
 set scrolljump=8        " Scroll 8 lines at a time at bottom/top
 set undodir=$HOME/.vim/undo
 set fillchars=fold:-,vert:│
+
 
 augroup uistuff
   autocmd!
@@ -186,6 +185,11 @@ elseif executable('ag')
 endif
 
 " -------------------------------
+" fzf.vim
+" -------------------------------
+let g:fzf_layout = { 'down': '~10%' }
+
+" -------------------------------
 " clang-format
 " -------------------------------
 if executable('clang-format')
@@ -256,6 +260,7 @@ let g:go_fmt_fail_silently = 1
 let g:go_def_reuse_buffer = 1
 let g:go_auto_type_info = 1
 let g:go_echo_command_info = 1
+let go_gocode_propose_source = 0
 let g:go_list_height = 10
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
 let g:go_highlight_functions = 0
@@ -273,6 +278,7 @@ augroup gomode
   autocmd FileType go nmap <buffer> <LocalLeader>d <Plug>(go-doc)
   autocmd FileType go nmap <buffer> <LocalLeader>D <Plug>(go-describe)
   autocmd FileType go nmap <buffer> <LocalLeader>I <Plug>(go-implements)
+  autocmd FileType go nmap <buffer> <LocalLeader>l :GoReferrers<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>i :GoImpl<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>f :GoFill<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>t :GoDecls<CR>
@@ -292,7 +298,7 @@ augroup fzf
   autocmd FileType fzf tnoremap <expr> <buffer> <C-k> SendToTerm("\<c-k>")
 augroup END
 
-func SendToTerm(what)
+function! SendToTerm(what)
   call term_sendkeys('', a:what)
   return ''
 endfunc
@@ -300,6 +306,8 @@ endfunc
 " -------------------------------
 " FileBeagle
 " -------------------------------
+let g:loaded_netrw       = 1
+let g:loaded_netrwPlugin = 1
 let g:filebeagle_suppress_keymaps = 1
 
 " -------------------------------
@@ -308,9 +316,10 @@ let g:filebeagle_suppress_keymaps = 1
 let g:BufKillCreateMappings = 0
 
 " -------------------------------
-" goyo
+" bufkill
 " -------------------------------
-let g:goyo_width=100
+let g:terraform_fmt_on_save = 1
+
 
 " -------------------------------
 " MUComplete
@@ -323,7 +332,7 @@ let g:mucomplete#chains.go = ['path', 'omni', 'keyn']
 " -------------------------------
 " vim-polyglot
 " -------------------------------
-let g:polyglot_disabled = ['go']
+let g:polyglot_disabled = ['go', 'terraform']
 
 " -------------------------------
 " Keybindings
@@ -411,8 +420,7 @@ function! OnBuildFinish(job, code)
 endfunction
 
 function! OnTestFinish(job, code)
-  let testformat='%f:%l:%m'
-  call OnCompilationFinish(a:job, a:code, testformat, 1)
+  call OnCompilationFinish(a:job, a:code, &errorformat, 1)
 endfunction
 
 function! OnCompilationFinish(job, code, efm, loadqf)
@@ -422,7 +430,7 @@ function! OnCompilationFinish(job, code, efm, loadqf)
     return
   endif
 
-  let bnum = bufnr('*compilation*')
+  let bnum = bufnr('\*compilation\*')
   if bnum < 0
     return
   endif
@@ -473,7 +481,7 @@ function! RunCompilation(command, description, onFinish)
   " Save all open files first
   execute 'wall'
 
-  let bname = '*compilation*'
+  let bname = '\*compilation\*'
   let bnum = bufnr(bname)
   let cwid = -1
   if bnum >= 0
@@ -495,17 +503,16 @@ function! RunCompilation(command, description, onFinish)
   execute 'silent edit' bname
   setlocal filetype=compilation
   setlocal buftype=nofile
-  setlocal nomodifiable
   setlocal nobuflisted
   setlocal nonumber
   let bnum = bufnr(bname)
 
-  " Show compilation header
   setlocal modifiable
   silent! normal! ggdG
   call append(0, [
         \a:description . " started at " . strftime("%a %d %b %T")
         \])
+
   setlocal nomodifiable
 
   " Set error/success syntax matches
@@ -513,6 +520,7 @@ function! RunCompilation(command, description, onFinish)
   syntax match Error /\v abnormally with code \d+/
   syntax match Statement /\v successfully /
 
+  " Kick off job
   let g:seanpile_last_job = job_start(a:command, {
         \'exit_cb': a:onFinish,
         \'out_modifiable': 0,
@@ -531,15 +539,9 @@ endfunction
 command! CompilationBuild call RunCompilation("./build.macosx", "Compilation", "OnBuildFinish")
 command! CompilationTest call RunCompilation("./test.macosx", "Testing", "OnTestFinish")
 
-
-" SplitInOtherWindow is called on new windows to maintain a dual-pane window
+" DualPaneLayoutManager is called on new windows to maintain a dual-pane window
 " layout.
-function! SplitInOtherWindow()
-
-  " Ignore when using goyo
-  if exists('t:goyo_master')
-    return
-  endif
+function! DualPaneLayoutManager()
 
   " Allow horizontal splits to occur
   let screenpos = win_screenpos(winnr())
@@ -547,9 +549,12 @@ function! SplitInOtherWindow()
     return
   endif
 
+  let tabnr = tabpagenr()
+  let nwin = tabpagewinnr(tabnr, '$')
+
   " If we only have two columns, allow split to continue
   let columns = []
-  for cwin in range(1, winnr('$'))
+  for cwin in range(1, nwin)
     let col = win_screenpos(cwin)[1]
     call add(columns, win_screenpos(cwin)[1])
   endfor
@@ -559,7 +564,7 @@ function! SplitInOtherWindow()
   endif
 
   " If we only have two windows, don't do anything
-  let lwin = winnr('$')
+  let lwin = nwin
   if lwin <= 2
     return
   endif
@@ -588,5 +593,5 @@ endfunction
 
 augroup windowlayout
   autocmd!
-  autocmd WinNew * call SplitInOtherWindow()
+  autocmd WinNew * call DualPaneLayoutManager()
 augroup END
