@@ -11,7 +11,7 @@ Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'chaoren/vim-wordmotion'
-Plug 'moll/vim-bbye'
+Plug 'qpkorr/vim-bufkill'
 Plug 'jeetsukumaran/vim-filebeagle'
 Plug '/usr/local/opt/fzf' 
 Plug 'junegunn/fzf.vim'
@@ -28,10 +28,11 @@ Plug 'lifepillar/vim-mucomplete'
 
 " Code Formatters
 Plug 'rhysd/vim-clang-format'
-Plug 'mitermayer/vim-prettier'
+Plug 'mitermayer/vim-prettier', { 'commit': '52c02ba251050bb1caeba0284a535545ab541f38' }
 
 " Language Plugins
 Plug 'fatih/vim-go'
+Plug 'z0mbix/vim-shfmt', { 'for': 'sh' }
 
 " Syntax/Indent for all languages
 Plug 'sheerun/vim-polyglot'
@@ -261,6 +262,7 @@ let g:go_def_reuse_buffer = 1
 let g:go_auto_type_info = 1
 let g:go_echo_command_info = 1
 let go_gocode_propose_source = 0
+let g:go_gocode_unimported_packages = 1
 let g:go_list_height = 10
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
 let g:go_highlight_functions = 0
@@ -285,6 +287,16 @@ augroup gomode
   autocmd FileType go nmap <buffer> <LocalLeader>T :GoDeclsDir<CR>
   autocmd FileType go setlocal tabstop=4 shiftwidth=4
   autocmd FileType go setlocal formatoptions=cjrql
+  autocmd FileType go abbr ctxx ctx context.Context
+augroup END
+
+
+" -------------------------------
+"  sql config
+" -------------------------------
+augroup sqlmode
+  autocmd!
+  autocmd FileType sql setlocal expandtab tabstop=4 shiftwidth=4
 augroup END
 
 " -------------------------------
@@ -316,12 +328,6 @@ let g:filebeagle_suppress_keymaps = 1
 let g:BufKillCreateMappings = 0
 
 " -------------------------------
-" bufkill
-" -------------------------------
-let g:terraform_fmt_on_save = 1
-
-
-" -------------------------------
 " MUComplete
 " -------------------------------
 set completeopt=menuone,noselect
@@ -333,6 +339,11 @@ let g:mucomplete#chains.go = ['path', 'omni', 'keyn']
 " vim-polyglot
 " -------------------------------
 let g:polyglot_disabled = ['go', 'terraform']
+
+" -------------------------------
+" vim-shfmt
+" -------------------------------
+let g:shfmt_extra_args = '-i 2'
 
 " -------------------------------
 " Keybindings
@@ -358,12 +369,12 @@ nnoremap <Leader>ww   :vsp<cr>
 nnoremap <Leader>wx   :sp<cr>
 nnoremap <Leader>wp   :b#<cr>
 nnoremap <Leader>w    <nop>
-nnoremap <Leader>xo   :execute 'Bdelete' winbufnr(winnr('#'))<cr>
-nnoremap <Leader>xx   :Bdelete<cr>
+nnoremap <Leader>xo   :execute 'BD' winbufnr(winnr('#'))<cr>
+nnoremap <Leader>xx   :BD<cr>
 nnoremap <Leader>x    <nop>
-nnoremap <Leader><BS> :Bdelete<cr>
+nnoremap <Leader><BS> :BD<cr>
 tnoremap <C-g>        <C-W>N
-tnoremap <C-x>        <C-W>N:Bdelete!<cr>
+tnoremap <C-x>        <C-W>N:BD!<cr>
 "  Terminal Support
 nnoremap <Leader>tt   :call OpenExistingTerminal()<cr>
 nnoremap <Leader>tn   :call OpenNewTerminal()<cr>
@@ -384,6 +395,21 @@ noremap  <Up>         :cfirst<cr>
 noremap  <Down>       :clast<cr>
 nnoremap <Leader>m    :CompilationBuild<cr>
 nnoremap <Leader>1    :CompilationTest<cr>
+nnoremap <Leader>2    :CompilationCheck<cr>
+nnoremap <Leader>3    :CompilationRun<cr>
+
+" -----------------------------------------------------
+"  Convenience function to Populate the args list from the QuickFix list.
+" -----------------------------------------------------
+command! -nargs=0 -bar Qargs execute 'args ' . QuickfixFilenames()
+function! QuickfixFilenames()
+  " Building a hash ensures we get each buffer only once
+  let buffer_numbers = {}
+  for quickfix_item in getqflist()
+    let buffer_numbers[quickfix_item['bufnr']] = bufname(quickfix_item['bufnr'])
+  endfor
+  return join(values(buffer_numbers))
+endfunction
 
 " -----------------------------------------------------
 "  Convenience functions for interacting with terminal;
@@ -415,15 +441,19 @@ endfunction
 "  present in emacs; commands are run in the preview window and output is
 "  echoed to the preview window buffer
 " -----------------------------------------------------
-function! OnBuildFinish(job, code)
-  call OnCompilationFinish(a:job, a:code, &errorformat, 1)
+function! OnCallback(channel, line)
+
+  call add(g:seanpile_job_ctx.lines, a:line)
+
+  " Send all error lines into qf list
+  let qflist = getqflist({'all': 1, 'lines': g:seanpile_job_ctx.lines})
+  let alllines = get(qflist, 'items', [])
+  let errorlines = filter(alllines, 'get(v:val, "valid", 0) == 1')
+  call setqflist(errorlines, 'r')
+
 endfunction
 
-function! OnTestFinish(job, code)
-  call OnCompilationFinish(a:job, a:code, &errorformat, 1)
-endfunction
-
-function! OnCompilationFinish(job, code, efm, loadqf)
+function! OnCompilationFinish(job, code)
 
   " If job was killed early, then just return
   if a:code < 0
@@ -434,9 +464,6 @@ function! OnCompilationFinish(job, code, efm, loadqf)
   if bnum < 0
     return
   endif
-
-  " Output of job, excluding header
-	let blines = getbufline(bnum, 3,  '$')
 
   call setbufvar(bnum, '&modifiable', 1)
   if a:code == 0 
@@ -452,30 +479,15 @@ function! OnCompilationFinish(job, code, efm, loadqf)
   endif
   call setbufvar(bnum, '&modifiable', 0)
 
-  if !a:loadqf
-    return
-  endif
-
-  " If there is an error building, load the buffer into the quickfix list,
-  " skipping the header/footer.
-  if a:code == 0
-    " Clear quickfix list
-    call setqflist([], 'r')
-  else
-    " Send all error lines into qf list
-    let qflist = getqflist({'all': 1, 'efm': a:efm, 'lines': blines})
-    let alllines = get(qflist, 'items', [])
-    let errorlines = filter(alllines, 'get(v:val, "valid", 0) == 1')
-    call setqflist(errorlines, 'r')
-    cfirst
-  endif
+  " Remove last job
+  unlet g:seanpile_job_ctx
 
 endfunction
 
-function! RunCompilation(command, description, onFinish)
+function! RunCompilation(command, description, loadqf)
 
-  if exists("g:seanpile_last_job")
-    call job_stop(g:seanpile_last_job, "kill")
+  if exists("g:seanpile_job_ctx")
+    call job_stop(g:seanpile_job_ctx.job, "kill")
   endif
 
   " Save all open files first
@@ -483,16 +495,17 @@ function! RunCompilation(command, description, onFinish)
 
   let bname = '\*compilation\*'
   let bnum = bufnr(bname)
+  let maxwin = winnr('$')
   let cwid = -1
   if bnum >= 0
-    for wnum in range(1, winnr('$'))
+    for wnum in range(1, maxwin)
       if winbufnr(wnum) == bnum
         let cwid = win_getid(wnum)
       endif
     endfor
   endif
 
-  if cwid >= 0
+  if cwid >= 0 && maxwin > 1
     " Go to existing window with compilation buffer if it exists
     call win_gotoid(cwid)
   else
@@ -507,37 +520,49 @@ function! RunCompilation(command, description, onFinish)
   setlocal nonumber
   let bnum = bufnr(bname)
 
-  setlocal modifiable
-  silent! normal! ggdG
-  call append(0, [
+  call setbufvar(bnum, '&modifiable', 1)
+  call deletebufline(bnum, 0, '$')
+  call appendbufline(bnum, 0, [
         \a:description . " started at " . strftime("%a %d %b %T")
-        \])
-
-  setlocal nomodifiable
+  \])
+  call setbufvar(bnum, '&modifiable', 0)
 
   " Set error/success syntax matches
   syntax match Error /\v^[^:\ \t]+:\d+:(\d+:)?/
   syntax match Error /\v abnormally with code \d+/
   syntax match Statement /\v successfully /
 
-  " Kick off job
-  let g:seanpile_last_job = job_start(a:command, {
-        \'exit_cb': a:onFinish,
+  let opts = {
+        \'exit_cb': 'OnCompilationFinish',
         \'out_modifiable': 0,
         \'out_io': 'buffer',
         \'out_buf': bnum,
         \'err_modifiable': 0,
         \'err_io': 'buffer',
         \'err_buf': bnum
-        \})
+  \}
+
+  " Add callback to load entries into quickfix if required
+  if a:loadqf
+    call setqflist([], 'r')
+    let opts.callback = 'OnCallback'
+  endif
+
+  " Kick off job
+  let g:seanpile_job_ctx = {
+    \'lines': [],
+    \'job': job_start(a:command, opts)
+  \}
 
   " Switch to previous window
   wincmd p
 
 endfunction
 
-command! CompilationBuild call RunCompilation("./build.macosx", "Compilation", "OnBuildFinish")
-command! CompilationTest call RunCompilation("./test.macosx", "Testing", "OnTestFinish")
+command! CompilationBuild call RunCompilation("./build.macosx", "Compilation", 1)
+command! CompilationTest call RunCompilation("./test.macosx", "Testing", 1)
+command! CompilationCheck call RunCompilation("./check.macosx", "Checking", 1)
+command! CompilationRun call RunCompilation("./run.macosx", "Running", 0)
 
 " DualPaneLayoutManager is called on new windows to maintain a dual-pane window
 " layout.
