@@ -261,7 +261,7 @@ let g:go_fmt_fail_silently = 1
 let g:go_def_reuse_buffer = 1
 let g:go_auto_type_info = 1
 let g:go_echo_command_info = 1
-let go_gocode_propose_source = 0
+let g:go_gocode_propose_source = 0
 let g:go_gocode_unimported_packages = 1
 let g:go_list_height = 10
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
@@ -435,6 +435,29 @@ function! OpenNewTerminal()
   execute 'term ++curwin ++noclose ++kill=term'
 endfunction
 
+function! CompilationCheckQFList(lines)
+
+  " Send all error lines into qf list
+  let qflist = getqflist({'all': 1, 'lines': a:lines})
+  let alllines = get(qflist, 'items', [])
+  let errorlines = filter(alllines, 'get(v:val, "valid", 0) == 1')
+
+  if len(errorlines) == len(g:seanpile_job_ctx.errorlines)
+    return
+  endif
+
+  " Set the quickfix list
+  call setqflist(errorlines, 'r')
+
+  " Save new errorlines, and jump to first error if we have not yet jumped
+  if !g:seanpile_job_ctx.jumped
+    cfirst
+  endif
+
+  let g:seanpile_job_ctx.errorlines = errorlines
+  let g:seanpile_job_ctx.jumped = 1
+
+endfunction
 
 " -----------------------------------------------------
 "  Below is an ongoing experiment to simulate 'compilation' mode that is
@@ -443,13 +466,16 @@ endfunction
 " -----------------------------------------------------
 function! OnCallback(channel, line)
 
-  call add(g:seanpile_job_ctx.lines, a:line)
+  if !exists("g:seanpile_job_ctx")
+    return
+  endif
 
-  " Send all error lines into qf list
-  let qflist = getqflist({'all': 1, 'lines': g:seanpile_job_ctx.lines})
-  let alllines = get(qflist, 'items', [])
-  let errorlines = filter(alllines, 'get(v:val, "valid", 0) == 1')
-  call setqflist(errorlines, 'r')
+  if ch_status(g:seanpile_job_ctx.job) == "buffered"
+    return
+  endif
+
+  call add(g:seanpile_job_ctx.lines, a:line)
+  call CompilationCheckQFList(g:seanpile_job_ctx.lines)
 
 endfunction
 
@@ -464,6 +490,11 @@ function! OnCompilationFinish(job, code)
   if bnum < 0
     return
   endif
+
+  " Do a final check of the output to determine if there are any
+  " pending errorlines.
+  let blines = getbufline(bnum, 3,  '$')
+  call CompilationCheckQFList(blines)
 
   call setbufvar(bnum, '&modifiable', 1)
   if a:code == 0 
@@ -520,12 +551,12 @@ function! RunCompilation(command, description, loadqf)
   setlocal nonumber
   let bnum = bufnr(bname)
 
-  call setbufvar(bnum, '&modifiable', 1)
-  call deletebufline(bnum, 0, '$')
+  setlocal modifiable
+  silent! normal! ggdG
   call appendbufline(bnum, 0, [
         \a:description . " started at " . strftime("%a %d %b %T")
   \])
-  call setbufvar(bnum, '&modifiable', 0)
+  setlocal nomodifiable
 
   " Set error/success syntax matches
   syntax match Error /\v^[^:\ \t]+:\d+:(\d+:)?/
@@ -551,6 +582,8 @@ function! RunCompilation(command, description, loadqf)
   " Kick off job
   let g:seanpile_job_ctx = {
     \'lines': [],
+    \'errorlines': [],
+    \'jumped': 0,
     \'job': job_start(a:command, opts)
   \}
 
