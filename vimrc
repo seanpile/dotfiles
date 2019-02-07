@@ -20,6 +20,9 @@ Plug 'junegunn/fzf.vim'
 Plug 'altercation/vim-colors-solarized'
 Plug 'itchyny/lightline.vim'
 
+" git support
+Plug 'jreybert/vimagit'
+
 " project search
 Plug 'mileszs/ack.vim'
 
@@ -28,7 +31,7 @@ Plug 'lifepillar/vim-mucomplete'
 
 " Code Formatters
 Plug 'rhysd/vim-clang-format'
-Plug 'mitermayer/vim-prettier', { 'commit': '52c02ba251050bb1caeba0284a535545ab541f38' }
+Plug 'mitermayer/vim-prettier'
 
 " Language Plugins
 Plug 'fatih/vim-go'
@@ -232,10 +235,18 @@ augroup END
 augroup mdmode
   autocmd!
   autocmd BufWritePre *.md Prettier
-  autocmd FileType markdown setlocal expandtab tabstop=2 shiftwidth=2 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=80
+  autocmd FileType markdown setlocal spell spelllang=en_us expandtab tabstop=2 shiftwidth=2 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=80
   autocmd FileType markdown let g:prettier#config#parser='markdown'
   autocmd FileType markdown let g:prettier#config#prose_wrap='always'
   autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
+augroup END
+
+" -------------------------------
+" Secret Environment Files
+" -------------------------------
+augroup secrets
+  autocmd!
+  autocmd BufRead,BufNewFile *.env.secret set filetype=sh
 augroup END
 
 " -------------------------------
@@ -316,6 +327,13 @@ function! SendToTerm(what)
 endfunc
 
 " -------------------------------
+" vim-magit
+" -------------------------------
+let g:magit_show_help=0
+let g:magit_default_fold_level=2
+let g:magit_default_sections = ['global_help', 'commit', 'staged', 'unstaged']
+
+" -------------------------------
 " FileBeagle
 " -------------------------------
 let g:loaded_netrw       = 1
@@ -352,22 +370,19 @@ let g:shfmt_extra_args = '-i 2'
 nnoremap <Leader>zz   :e $MYVIMRC<cr>
 nnoremap <Leader>zr   :source $MYVIMRC<cr>
 nnoremap <Leader>z    <nop>
-"  Unified Window Switching (in vim + terminal mode)
+"  Window Scrolling / Motion
 nnoremap <C-h>        <C-w>h
 nnoremap <C-j>        <C-w>j
 nnoremap <C-k>        <C-w>k
 nnoremap <C-l>        <C-w>l
-tnoremap <C-h>        <C-W>h
-tnoremap <C-j>        <C-W>j
-tnoremap <C-k>        <C-W>k
-tnoremap <C-l>        <C-W>l
+nnoremap <D-j>        <C-d>
+nnoremap <D-k>        <C-u>
 "  Buffer/Window Management
 nnoremap <Leader>s    :w<cr>
-nnoremap <Leader>wq   :close<cr>
-nnoremap <Leader>wo   :only<cr>
 nnoremap <Leader>ww   :vsp<cr>
+nnoremap <Leader>wp   :close<cr>
+nnoremap <Leader>wo   :only<cr>
 nnoremap <Leader>wx   :sp<cr>
-nnoremap <Leader>wp   :b#<cr>
 nnoremap <Leader>w    <nop>
 nnoremap <Leader>xo   :execute 'BD' winbufnr(winnr('#'))<cr>
 nnoremap <Leader>xx   :BD<cr>
@@ -375,10 +390,6 @@ nnoremap <Leader>x    <nop>
 nnoremap <Leader><BS> :BD<cr>
 tnoremap <C-g>        <C-W>N
 tnoremap <C-x>        <C-W>N:BD!<cr>
-"  Terminal Support
-nnoremap <Leader>tt   :call OpenExistingTerminal()<cr>
-nnoremap <Leader>tn   :call OpenNewTerminal()<cr>
-nnoremap <Leader>t    <nop>
 "  File Navigation
 nnoremap <Leader>/    :Ack<space>
 nnoremap <Leader>b    :Buffers<cr>
@@ -393,10 +404,11 @@ noremap  <Left>       :Cprev<cr>
 noremap  <Right>      :Cnext<cr>
 noremap  <Up>         :cfirst<cr>
 noremap  <Down>       :clast<cr>
-nnoremap <Leader>m    :CompilationBuild<cr>
-nnoremap <Leader>1    :CompilationTest<cr>
-nnoremap <Leader>2    :CompilationCheck<cr>
-nnoremap <Leader>3    :CompilationRun<cr>
+nnoremap <Leader>mm   :CompilationBuild<cr>
+nnoremap <Leader>mt   :CompilationTest<cr>
+nnoremap <Leader>mc   :CompilationCheck<cr>
+nnoremap <Leader>mr   :CompilationRun<cr>
+nnoremap <Leader>m    <nop>
 
 " -----------------------------------------------------
 "  Convenience function to Populate the args list from the QuickFix list.
