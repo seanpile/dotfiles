@@ -10,6 +10,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-eunuch'
 Plug 'chaoren/vim-wordmotion'
 Plug 'qpkorr/vim-bufkill'
 Plug 'jeetsukumaran/vim-filebeagle'
@@ -19,6 +20,9 @@ Plug 'junegunn/fzf.vim'
 " ui mods
 Plug 'altercation/vim-colors-solarized'
 Plug 'itchyny/lightline.vim'
+
+" bookmark support
+Plug 'MattesGroeger/vim-bookmarks'
 
 " git support
 Plug 'jreybert/vimagit'
@@ -30,11 +34,11 @@ Plug 'mileszs/ack.vim'
 Plug 'lifepillar/vim-mucomplete'
 
 " Code Formatters
-Plug 'rhysd/vim-clang-format'
-Plug 'mitermayer/vim-prettier'
+Plug 'sbdchd/neoformat'
 
 " Language Plugins
 Plug 'fatih/vim-go'
+"Plug 'govim/govim', { 'branch': 'latest_tools_fix_release' }
 Plug 'z0mbix/vim-shfmt', { 'for': 'sh' }
 
 " Syntax/Indent for all languages
@@ -69,7 +73,7 @@ set title
 set scrolljump=8        " Scroll 8 lines at a time at bottom/top
 set undodir=$HOME/.vim/undo
 set fillchars=fold:-,vert:│
-
+set signcolumn=yes
 
 augroup uistuff
   autocmd!
@@ -114,7 +118,7 @@ augroup END
 let g:lightline = {
       \ 'colorscheme': 'solarized',
       \ 'active': {
-      \   'left': [['mode', 'paste'], ['filename', 'modified']],
+      \   'left': [['mode', 'paste'], ['relativepath', 'modified']],
       \   'right': [['lineinfo'], ['percent'], ['readonly']]
       \ },
       \ 'inactive': {
@@ -189,17 +193,24 @@ elseif executable('ag')
 endif
 
 " -------------------------------
+"  neoformat config
+" -------------------------------
+let g:neoformat_html_myhtmlformatter = {
+            \ 'exe': 'html-beautify',
+            \ 'args': ['-s 2', '-w 80', '-A force-aligned', '-U meta', '-U inline'],
+            \ 'stdin': 1,
+            \ }
+let g:neoformat_enabled_html = ['myhtmlformatter']
+
+augroup neoformat
+  autocmd!
+  autocmd BufWritePre *.html.tmpl Neoformat! html myhtmlformatter
+augroup END
+
+" -------------------------------
 " fzf.vim
 " -------------------------------
 let g:fzf_layout = { 'down': '~10%' }
-
-" -------------------------------
-" clang-format
-" -------------------------------
-if executable('clang-format')
-  let g:clang_format#detect_style_file=1
-  let g:clang_format#auto_formatexpr=1
-endif
 
 " -------------------------------
 " vimrc specific settings
@@ -225,8 +236,7 @@ augroup END
 " -------------------------------
 augroup jsmode
   autocmd!
-  autocmd FileType javascript,css,jsx,scss,json nmap <buffer> <LocalLeader>f :Prettier<cr>
-  autocmd FileType javascript,css,jsx,scss,json setlocal expandtab tabstop=2 shiftwidth=2
+  autocmd FileType javascript,typescript,css,jsx,scss,json setlocal expandtab tabstop=2 shiftwidth=2
 augroup END
 
 " -------------------------------
@@ -234,10 +244,8 @@ augroup END
 " -------------------------------
 augroup mdmode
   autocmd!
-  autocmd BufWritePre *.md Prettier
+  autocmd BufWritePre *.md Neoformat
   autocmd FileType markdown setlocal spell spelllang=en_us expandtab tabstop=2 shiftwidth=2 autoindent colorcolumn=0 linebreak nonumber wrap textwidth=80
-  autocmd FileType markdown let g:prettier#config#parser='markdown'
-  autocmd FileType markdown let g:prettier#config#prose_wrap='always'
   autocmd FileType yaml setlocal expandtab tabstop=2 shiftwidth=2
 augroup END
 
@@ -272,8 +280,7 @@ let g:go_fmt_fail_silently = 1
 let g:go_def_reuse_buffer = 1
 let g:go_auto_type_info = 1
 let g:go_echo_command_info = 1
-let g:go_gocode_propose_source = 0
-let g:go_gocode_unimported_packages = 1
+let g:go_gopls_use_placeholders = 1
 let g:go_list_height = 10
 let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck', 'maligned', 'unconvert']
 let g:go_highlight_functions = 0
@@ -296,6 +303,8 @@ augroup gomode
   autocmd FileType go nmap <buffer> <LocalLeader>f :GoFill<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>t :GoDecls<CR>
   autocmd FileType go nmap <buffer> <LocalLeader>T :GoDeclsDir<CR>
+  " autocmd FileType go nmap <silent> <buffer> <LocalLeader>h : <C-u>call GOVIMHover()<CR>
+  " autocmd FileType go nmap <silent> <buffer> <LocalLeader>l : <C-u>call GOVIMReferences()<CR>
   autocmd FileType go setlocal tabstop=4 shiftwidth=4
   autocmd FileType go setlocal formatoptions=cjrql
   autocmd FileType go abbr ctxx ctx context.Context
@@ -346,6 +355,12 @@ let g:filebeagle_suppress_keymaps = 1
 let g:BufKillCreateMappings = 0
 
 " -------------------------------
+" vim-bookmarks
+" -------------------------------
+let g:bookmark_no_default_key_mappings=1
+
+
+" -------------------------------
 " MUComplete
 " -------------------------------
 set completeopt=menuone,noselect
@@ -370,7 +385,7 @@ let g:shfmt_extra_args = '-i 2'
 nnoremap <Leader>zz   :e $MYVIMRC<cr>
 nnoremap <Leader>zr   :source $MYVIMRC<cr>
 nnoremap <Leader>z    <nop>
-"  Window Scrolling / Motion
+"  Window Scrolling: / Motion
 nnoremap <C-h>        <C-w>h
 nnoremap <C-j>        <C-w>j
 nnoremap <C-k>        <C-w>k
@@ -384,8 +399,9 @@ nnoremap <Leader>wp   :close<cr>
 nnoremap <Leader>wo   :only<cr>
 nnoremap <Leader>wx   :sp<cr>
 nnoremap <Leader>w    <nop>
-nnoremap <Leader>xo   :execute 'BD' winbufnr(winnr('#'))<cr>
+nnoremap <Leader>xo   :DeleteOtherBuffer<cr>
 nnoremap <Leader>xx   :BD<cr>
+nnoremap <Leader>xc   :let @" = expand("%")<cr>
 nnoremap <Leader>x    <nop>
 nnoremap <Leader><BS> :BD<cr>
 tnoremap <C-g>        <C-W>N
@@ -397,6 +413,11 @@ nnoremap <Leader>r    :History<cr>
 nnoremap <Leader>f    :Files<cr>
 nmap     -            <Plug>FileBeagleOpenCurrentBufferDir
 nmap     _            <Plug>FileBeagleOpenCurrentWorkingDir
+"  Bookmark Support
+nnoremap <Leader>tt   :BookmarkToggle<cr>
+nnoremap <Leader>ta   :BookmarkShowAll<cr>
+nnoremap <Leader>tr   :execute BookmarkShowAll()<bar>:Wall<bar>:bufdo bd<bar>Qargs<cr>
+nnoremap <Leader>t    <nop>
 "  Build / Error management
 nnoremap <C-n>        :Cnext<cr>
 nnoremap <C-p>        :Cprev<cr>
@@ -409,6 +430,17 @@ nnoremap <Leader>mt   :CompilationTest<cr>
 nnoremap <Leader>mc   :CompilationCheck<cr>
 nnoremap <Leader>mr   :CompilationRun<cr>
 nnoremap <Leader>m    <nop>
+
+" -----------------------------------------------------
+"  Convenience function to delete the buffer in the other window without
+"  closing the window.
+" -----------------------------------------------------
+command! DeleteOtherBuffer call DeleteOtherBufferFn()
+function! DeleteOtherBufferFn()
+  wincmd p
+  execute 'BD'
+  wincmd p
+endfunction
 
 " -----------------------------------------------------
 "  Convenience function to Populate the args list from the QuickFix list.
@@ -629,7 +661,7 @@ function! DualPaneLayoutManager()
     call add(columns, win_screenpos(cwin)[1])
   endfor
 
-  if len(uniq(columns)) <= 2
+  if len(uniq(sort(columns))) <= 2
     return
   endif
 

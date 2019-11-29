@@ -91,6 +91,10 @@
         ;; Misc
         :desc "Pop up scratch buffer"     :nv "x"   #'open-scratch-buffer-in-other-window
 
+        (:desc "config" :prefix "z"
+          :desc "Find file in emacs.d"      :n "z"  #'+default/find-in-emacsd
+          :desc "Reload private config"     :n "R"  #'doom//reload)
+
         (:desc "full menu" :prefix "SPC"
           ;; C-u is used by evil
           :desc "Universal argument"      :n "u"  #'universal-argument
@@ -310,25 +314,6 @@
           "C-SPC"    #'ivy-call-and-recenter ; preview
           "M-RET"    (+ivy-do-action! #'+ivy-git-grep-other-window-action)))
 
-      ;; easymotion
-      :m "gs" #'+default/easymotion  ; lazy-load `evil-easymotion'
-      (:after evil-easymotion
-        :map evilem-map
-        "a" (evilem-create #'evil-forward-arg)
-        "A" (evilem-create #'evil-backward-arg)
-        "n" (evilem-create #'evil-ex-search-next)
-        "N" (evilem-create #'evil-ex-search-previous)
-        "s" (evilem-create #'evil-snipe-repeat
-                           :pre-hook (save-excursion (call-interactively #'evil-snipe-s))
-                           :bind ((evil-snipe-scope 'buffer)
-                                  (evil-snipe-enable-highlight)
-                                  (evil-snipe-enable-incremental-highlight)))
-        "S" (evilem-create #'evil-snipe-repeat-reverse
-                           :pre-hook (save-excursion (call-interactively #'evil-snipe-s))
-                           :bind ((evil-snipe-scope 'buffer)
-                                  (evil-snipe-enable-highlight)
-                                  (evil-snipe-enable-incremental-highlight))))
-
       ;; evil
       (:after evil
         :textobj "a" #'evil-inner-arg                    #'evil-outer-arg
@@ -372,52 +357,6 @@
         :map (magit-status-mode-map magit-revision-mode-map)
         :n "C-j" nil
         :n "C-k" nil)
-
-      ;; evil-mc
-      (:prefix "gz"
-        :nv "m" #'evil-mc-make-all-cursors
-        :nv "u" #'evil-mc-undo-all-cursors
-        :nv "z" #'+evil/mc-make-cursor-here
-        :nv "t" #'+evil/mc-toggle-cursors
-        :nv "n" #'evil-mc-make-and-goto-next-cursor
-        :nv "p" #'evil-mc-make-and-goto-prev-cursor
-        :nv "N" #'evil-mc-make-and-goto-last-cursor
-        :nv "P" #'evil-mc-make-and-goto-first-cursor
-        :nv "d" #'evil-mc-make-and-goto-next-match
-        :nv "D" #'evil-mc-make-and-goto-prev-match)
-      (:after evil-mc
-        :map evil-mc-key-map
-        :nv "C-n" #'evil-mc-make-and-goto-next-cursor
-        :nv "C-N" #'evil-mc-make-and-goto-last-cursor
-        :nv "C-p" #'evil-mc-make-and-goto-prev-cursor
-        :nv "C-P" #'evil-mc-make-and-goto-first-cursor)
-
-      ;; evil-multiedit
-      :v  "R"     #'evil-multiedit-match-all
-      :n  "M-d"   #'evil-multiedit-match-symbol-and-next
-      :n  "M-D"   #'evil-multiedit-match-symbol-and-prev
-      :v  "M-d"   #'evil-multiedit-match-and-next
-      :v  "M-D"   #'evil-multiedit-match-and-prev
-      :nv "C-M-d" #'evil-multiedit-restore
-      (:after evil-multiedit
-        (:map evil-multiedit-state-map
-          "M-d" #'evil-multiedit-match-and-next
-          "M-D" #'evil-multiedit-match-and-prev
-          "RET" #'evil-multiedit-toggle-or-restrict-region)
-        (:map (evil-multiedit-state-map evil-multiedit-insert-state-map)
-          "C-n" #'evil-multiedit-next
-          "C-p" #'evil-multiedit-prev))
-
-      ;; evil-snipe
-      (:after evil-snipe
-        :map evil-snipe-parent-transient-map
-        ;; switch to evil-easymotion/avy after a snipe
-        "C-;" (λ! (require 'evil-easymotion)
-                  (call-interactively
-                   (evilem-create #'evil-snipe-repeat
-                                  :bind ((evil-snipe-scope 'whole-buffer)
-                                         (evil-snipe-enable-highlight)
-                                         (evil-snipe-enable-incremental-highlight))))))
 
       ;; evil-surround
       :v  "S"  #'evil-surround-region
@@ -498,21 +437,6 @@
         "C-u"    #'ivy-kill-line
         "C-b"    #'backward-word
         "C-f"    #'forward-word)
-
-      ;; realgud
-      (:after realgud
-        :map realgud:shortkey-mode-map
-        :n "j" #'evil-next-line
-        :n "k" #'evil-previous-line
-        :n "h" #'evil-backward-char
-        :n "l" #'evil-forward-char
-        :m "n" #'realgud:cmd-next
-        :m "b" #'realgud:cmd-break
-        :m "B" #'realgud:cmd-clear
-        :n "c" #'realgud:cmd-continue)
-
-      ;; rotate-text
-      :n  "!"  #'rotate-text
 
       ;; swiper
       (:after swiper

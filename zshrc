@@ -90,7 +90,7 @@ alias gs="git status"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
-alias emacs='open /Applications/Emacs --args --title ${PWD##*/}'
+alias emacs='open /Applications/Emacs.app --args --title ${PWD##*/}'
 
 # Default editor
 export EDITOR="vim"
@@ -100,6 +100,11 @@ if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
   source /usr/local/opt/fzf/shell/key-bindings.zsh
   source /usr/local/opt/fzf/shell/completion.zsh
 fi
+
+# Allow editing of long commands in $EDITOR
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd v edit-command-line
 
 # fzf + ripgrep configuration
 export FZF_DEFAULT_COMMAND='rg --files'

@@ -8,7 +8,7 @@
 
 ;; Font
 (add-to-list 'default-frame-alist
-             '(font . "Knack Nerd Font-12"))
+             '(font . "Hack 12"))
 
 ;; Initial Frame Size
 (add-to-list 'default-frame-alist '(height . 200))

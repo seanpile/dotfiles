@@ -38,6 +38,7 @@ alias emacs 'Emacs'
 alias alacritty 'Alacritty'
 alias vscode 'Code'
 alias goland 'GoLand'
+alias merge 'Sublime Merge'
 
 
 # SLATE FEATURES
@@ -103,7 +104,7 @@ layout large-layout ${terminal}:REPEAT ${full}
 layout large-layout ${alacritty}:REPEAT ${full}
 
 #layout xl-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${left20} | ${left70}
-layout xl-layout ${browser}:REPEAT ${left70}
+layout xl-layout ${browser}:REPEAT ${full}
 layout xl-layout ${spotify}:REPEAT ${right30}
 layout xl-layout ${slack}:REPEAT ${left70}
 layout xl-layout ${editor}:REPEAT ${full}
@@ -115,6 +116,7 @@ layout xl-layout ${terminal}:REPEAT ${full}
 layout xl-layout ${alacritty}:REPEAT ${full}
 layout xl-layout ${vscode}:REPEAT ${full}
 layout xl-layout ${goland}:REPEAT ${full}
+layout xl-layout ${merge}:REPEAT ${full}
 
 # Bind a key to trigger this layout
 bind /:${hyper} layout xl-layout
