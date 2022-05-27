@@ -37,15 +37,9 @@ alias iterm2 'iTerm2'
 alias emacs 'Emacs'
 alias alacritty 'Alacritty'
 alias vscode 'Code'
+alias pycharm 'PyCharm'
 alias goland 'GoLand'
 alias merge 'Sublime Merge'
-
-
-# SLATE FEATURES
-# -------------------------------------------------------------------
-#
-# Reload Slate configuration file
-bind s:${hyper} relaunch
 
 
 # MONITOR-BASED POSITION ALIASES
@@ -81,6 +75,8 @@ alias pushRight30 push right bar-resize:screenSizeX*0.3
 alias pushLeft70 push left bar-resize:screenSizeX*0.7
 alias pushRight40 push right bar-resize:screenSizeX*0.4
 alias pushLeft60 push left bar-resize:screenSizeX*0.6
+alias bumpUp40 move windowTopLeftX;screenOriginY windowSizeX;screenSizeY*0.4
+alias bumpDown60 move windowTopLeftX;screenOriginY+screenSizeY*0.4 windowSizeX;screenSizeY*0.6
 
 # Constrained Layout (MacBook)
 # -------------------------------------------------------------------
@@ -89,7 +85,6 @@ layout small-layout ${browser}:REPEAT ${lefthalf}
 layout small-layout ${spotify}:REPEAT ${righthalf}
 layout small-layout ${slack}:REPEAT ${bottomhalf}
 layout small-layout ${firefox}:REPEAT ${righthalf}
-layout small-layout ${terminal}:REPEAT ${full}
 layout small-layout ${iterm2}:REPEAT ${full}
 layout small-layout ${alacritty}:REPEAT ${full}
 
@@ -100,28 +95,31 @@ layout large-layout ${editor}:REPEAT ${left60}
 layout large-layout ${firefox}:REPEAT ${right40}
 layout large-layout ${safari}:REPEAT ${right40}
 layout large-layout ${iterm2}:REPEAT ${full}
-layout large-layout ${terminal}:REPEAT ${full}
 layout large-layout ${alacritty}:REPEAT ${full}
 
-#layout xl-layout ${browser}:IGNORE_FAIL,REPEAT_LAST,TITLE_ORDER="Redux DevTools" ${left20} | ${left70}
-layout xl-layout ${browser}:REPEAT ${full}
+layout xl-layout ${browser}:REPEAT ${left70}
 layout xl-layout ${spotify}:REPEAT ${right30}
 layout xl-layout ${slack}:REPEAT ${left70}
 layout xl-layout ${editor}:REPEAT ${full}
 layout xl-layout ${firefox}:REPEAT ${right30}
 layout xl-layout ${safari}:REPEAT ${right30}
-layout xl-layout ${iterm2}:REPEAT ${full}
 layout xl-layout ${emacs}:REPEAT ${left70}
-layout xl-layout ${terminal}:REPEAT ${full}
 layout xl-layout ${alacritty}:REPEAT ${full}
 layout xl-layout ${vscode}:REPEAT ${full}
 layout xl-layout ${goland}:REPEAT ${full}
 layout xl-layout ${merge}:REPEAT ${full}
+layout xl-layout ${pycharm}:REPEAT ${full}
 
 # Bind a key to trigger this layout
 bind /:${hyper} layout xl-layout
-bind l:${hyper} ${pushRight40}
-bind h:${hyper} ${pushLeft60}
+bind l:${hyper} ${pushRight30}
+bind h:${hyper} ${pushLeft70}
+bind j:${hyper} ${bumpDown60}
+bind k:${hyper} ${bumpUp40}
+bind 1:${hyper} throw 0
+bind 2:${hyper} throw 1
+bind r:${hyper} relaunch
+bind space:${hyper} ${full}
 
 # Trigger this layout automatically when 1 monitors are present
 default small-layout resolutions:${monitor-macbook}

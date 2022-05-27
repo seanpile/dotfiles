@@ -48,7 +48,7 @@ DISABLE_AUTO_TITLE="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(zsh-nvm git vi-mode docker docker-compose redis-cli history-substring-search go)
+plugins=(git vi-mode nvm docker docker-compose redis-cli history-substring-search)
 
 export NVM_AUTO_USE=true
 export NVM_LAZY_LOAD=true
@@ -64,7 +64,7 @@ source $ZSH/oh-my-zsh.sh
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
+#   export EDITOR='nvim'
 # else
 #   export EDITOR='mvim'
 # fi
@@ -86,14 +86,19 @@ source $ZSH/oh-my-zsh.sh
 
 fpath=(/usr/local/share/zsh-completions $fpath)
 
+alias z="cd ~/code/udacity/emc-content"
 alias gs="git status"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
-alias emacs='open /Applications/Emacs.app --args --title ${PWD##*/}'
+alias vim='nvim'
+
+# Load pyenv
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 # Default editor
-export EDITOR="vim"
+export EDITOR="nvim"
 
 # fzf via Homebrew
 if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then

@@ -1,0 +1,11 @@
+{
+  "workspace.workspaceFolderCheckCwd": false,
+  "coc.preferences.rootPatterns": [],
+  "coc.preferences.useQuickfixForLocations": true,
+  "go.goplsOptions": {
+    "completeUnimported": true
+  },
+  "python.jediEnabled": false,
+  "python.formatting.provider": "black",
+  "python.linting.flake8Enabled": true
+}
