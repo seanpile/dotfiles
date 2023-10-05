@@ -1,0 +1,63 @@
+""" Map leader to space ---------------------
+let mapleader=" "
+
+""" Plugins  --------------------------------
+set surround
+set commentary
+
+""" Common settings -------------------------
+set showmode
+set so=5
+set incsearch
+set ignorecase
+set nu
+
+""" Idea specific settings ------------------
+set ideajoin
+set ideastatusicon=gray
+set idearefactormode=keep
+set NERDTree
+
+""" Mappings --------------------------------
+nmap <leader>fb       <Action>(PinActiveTabToggle)
+nmap <leader>fp       <Action>(PinActiveTabToggle)
+nmap <leader>ff       <Action>(GotoFile)
+nmap <leader>fs       <Action>(SaveDocument)
+nmap <leader>s        <Action>(SaveAll)
+nmap <leader>r        <Action>(RecentChangedFiles)
+nmap <leader><BS>     <Action>(CloseEditor)
+nmap <leader>/        <Action>(FindInPath)
+nmap <leader>b        <Action>(RecentFiles)
+
+""" Editor Window Actions
+nmap -               :NERDTree<cr>
+nmap <leader>ww      <Action>(SplitVertically)
+nmap <leader>wx      <Action>(SplitHorizontally)
+nmap <leader>wp      <Action>(Unsplit)
+nmap <leader>wo      <Action>(UnsplitAll)
+
+""" Code Actions
+nmap <leader>co      <Action>(ShowIntentionActions)
+nmap <leader>gr      <Action>(FindUsages)
+nmap <leader>gc      <Action>(EditorContextInfo)
+nmap <leader>got     <Action>(RunClass)
+
+""" Git Actions
+nmap <leader>gb      <Action>(Annotate)
+
+""" Actions
+nmap <leader>mr      <Action>(Run)
+nmap <leader>md      <Action>(Debug)
+nmap <leader>mt      <Action>(RerunTests)
+
+""" Back/Forward
+nmap <C-o>           <Action>(Back)
+nmap <C-i>           <Action>(Forward)
+
+nmap <C-h>          <C-W>h
+nmap <C-j>          <C-W>j
+nmap <C-k>          <C-W>k
+nmap <C-l>          <C-W>l
+
+nmap <C-n>          <Action>(VcsShowNextChangeMarker)
+nmap <C-p>          <Action>(VcsShowPrevChangeMarker)
