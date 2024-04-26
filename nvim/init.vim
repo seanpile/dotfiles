@@ -2,11 +2,13 @@
 nnoremap <Space> <nop>
 let mapleader=" "
 let maplocalleader="  "
+let g:python3_host_prog = expand('~/.pyenv/versions/nvim_default/bin/python')
 
 " Initialize vim-plug
-call plug#begin('~/.vim/plugged')
+call plug#begin('~/.config/nvim/plugged')
 
 " core
+Plug 'nathom/filetype.nvim'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-eunuch'
@@ -14,21 +16,15 @@ Plug 'tpope/vim-fugitive'
 Plug 'chaoren/vim-wordmotion'
 Plug 'qpkorr/vim-bufkill'
 Plug 'jeetsukumaran/vim-filebeagle'
-Plug '/usr/local/opt/fzf' 
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'miyakogi/conoline.vim'
-Plug 'jreybert/vimagit'
 Plug 'MattesGroeger/vim-bookmarks'
+Plug 'knubie/vim-kitty-navigator', {'do': 'cp ./*.py ~/.config/kitty/'}
 
 " ui mods
 Plug 'overcache/NeoSolarized'
 Plug 'itchyny/lightline.vim'
-
-" coc
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" project search
-Plug 'mileszs/ack.vim'
 
 call plug#end()
 
@@ -88,16 +84,13 @@ augroup END
 let g:lightline = {
       \ 'colorscheme': 'solarized',
       \ 'active': {
-      \   'left': [['mode', 'paste'], [ 'cocstatus', 'relativepath', 'modified']],
+      \   'left': [['mode', 'paste'], [ 'relativepath', 'modified']],
       \   'right': [['lineinfo'], ['percent'], ['readonly']]
       \ },
       \ 'inactive': {
       \   'left': [ [ 'filename' ] ],
       \   'right': [ [ 'lineinfo' ], [ 'percent' ] ]
-      \ },
-	    \ 'component_function': {
-	    \   'cocstatus': 'coc#status'
-	    \ }
+      \ }
       \}
 
 " -------------------------------
@@ -107,51 +100,6 @@ let g:lightline = {
 set background=dark
 colorscheme NeoSolarized
 
-" -------------------------------
-" coc.nvim
-" -------------------------------
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " . expand('<cword>')
-  endif
-endfunction
-
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder.
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
-
-
-augroup formatting
-  autocmd!
-  autocmd BufWritePre *.py,*.go call CocAction('format')
-augroup END
-
-
-" -------------------------------
-" Ack.vim
-"  - Try to use `rg` / `ag` if they are available
-" -------------------------------
-let g:ack_use_cword_for_empty_search = 1
-if executable('rg')
-  let g:ackprg = 'rg --vimgrep --no-heading'
-elseif executable('ag')
-  let g:ackprg = 'ag --vimgrep'
-endif
 
 " -------------------------------
 " fzf.vim
@@ -535,42 +483,10 @@ augroup windowlayout
 augroup END
 
 
-autocmd FileType python let b:coc_root_patterns = []
-autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')
-
 " -------------------------------
 " Keybindings
 " -------------------------------
 inoremap jj             <Esc>
-" coc.nvim
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-inoremap <silent><expr> <c-space> coc#refresh()
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-
-nmap <silent>     [g <Plug>(coc-diagnostic-prev)
-nmap <silent>     ]g <Plug>(coc-diagnostic-next)
-nmap <silent>     gd <Plug>(coc-definition)
-nmap <silent>     gy <Plug>(coc-type-definition)
-nmap <silent>     gi <Plug>(coc-implementation)
-nmap <silent>     gr <Plug>(coc-references)
-nmap <silent> K  :call <SID>show_documentation()<CR>
-nmap <leader>cr  <Plug>(coc-rename)
-nmap <leader>cf  <Plug>(coc-format)
-nmap <leader>cc  <Plug>(coc-fix-current)
-nmap <leader>co  :call CocActionAsync('runCommand', 'editor.action.organizeImport')<CR>
-nmap <leader>cs  :call CocActionAsync('runCommand', 'editor.action.sortImport')<CR>
-nmap <leader>c   <nop>
 
 "  Vimrc editing
 nnoremap <Leader>zz   :e ~/.config/nvim/init.vim<cr>
@@ -602,7 +518,7 @@ nnoremap <Leader><BS> :BD<cr>
 tnoremap <C-g>        <C-W>N
 tnoremap <C-x>        <C-W>N:BD!<cr>
 "  File Navigation
-nnoremap <Leader>/    :Ack<space>
+nnoremap <Leader>/    :RG<space>
 nnoremap <Leader>b    :Buffers<cr>
 nnoremap <Leader>r    :History<cr>
 nnoremap <Leader>f    :Files<cr>
