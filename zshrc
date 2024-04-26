@@ -48,10 +48,7 @@ DISABLE_AUTO_TITLE="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git vi-mode nvm docker docker-compose redis-cli history-substring-search)
-
-export NVM_AUTO_USE=true
-export NVM_LAZY_LOAD=true
+plugins=(git vi-mode docker docker-compose redis-cli history-substring-search)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -84,20 +81,23 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Sort tab-complete options by modification
+zstyle ':completion:*' file-sort modification
+
 fpath=(/usr/local/share/zsh-completions $fpath)
 
-alias z="cd ~/code/udacity/emc-content"
 alias gs="git status"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
-alias vim='nvim'
+alias dps="docker ps --format '{{.Names}} {{.Status}}'"
 
 # Load pyenv
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+eval "$(pyenv virtualenv-init - | sed s/precmd/precwd/g)"
 
 # Default editor
+alias vim="nvim"
 export EDITOR="nvim"
 
 # fzf via Homebrew
@@ -144,8 +144,6 @@ _gen_fzf_default_opts() {
 }
 _gen_fzf_default_opts
 
-# Ondir configuration
-eval_ondir() {
-  eval "`ondir \"$OLDPWD\" \"$PWD\"`"
-}
-chpwd_functions=( eval_ondir $chpwd_functions )
+
+# asdf
+. /usr/local/opt/asdf/libexec/asdf.sh
