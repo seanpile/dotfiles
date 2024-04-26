@@ -39,7 +39,7 @@ alias alacritty 'Alacritty'
 alias vscode 'Code'
 alias pycharm 'PyCharm'
 alias goland 'GoLand'
-alias merge 'Sublime Merge'
+alias kitty 'kitty'
 
 
 # MONITOR-BASED POSITION ALIASES
@@ -66,6 +66,7 @@ alias right40 move screenOriginX+screenSizeX*0.6;screenOriginY screenSizeX*0.4;s
 alias right20 move screenOriginX+screenSizeX*0.8;screenOriginY screenSizeX*0.2;screenSizeY
 alias leftThird move screenOriginX;screenOriginY screenSizeX/3;screenSizeY
 alias middleThird move screenOriginX+screenSizeX/3;screenOriginY screenSizeX/3;screenSizeY
+alias middleMiddle move screenOriginX+screenSizeX*0.1;screenOriginY+screenSizeY*0.1 screenSizeX*0.8;screenSizeY*0.8
 alias rightThird move screenOriginX+2*screenSizeX/3;screenOriginY screenSizeX/3;screenSizeY
 alias left70 move screenOriginX;screenOriginY screenSizeX*0.7;screenSizeY
 alias left80 move screenOriginX;screenOriginY screenSizeX*0.8;screenSizeY
@@ -97,18 +98,25 @@ layout large-layout ${safari}:REPEAT ${right40}
 layout large-layout ${iterm2}:REPEAT ${full}
 layout large-layout ${alacritty}:REPEAT ${full}
 
-layout xl-layout ${browser}:REPEAT ${left70}
-layout xl-layout ${spotify}:REPEAT ${right30}
-layout xl-layout ${slack}:REPEAT ${left70}
+layout xl-layout ${browser}:REPEAT ${full}
+layout xl-layout ${spotify}:REPEAT ${full}
+layout xl-layout ${slack}:REPEAT ${full}
 layout xl-layout ${editor}:REPEAT ${full}
-layout xl-layout ${firefox}:REPEAT ${right30}
-layout xl-layout ${safari}:REPEAT ${right30}
-layout xl-layout ${emacs}:REPEAT ${left70}
-layout xl-layout ${alacritty}:REPEAT ${full}
-layout xl-layout ${vscode}:REPEAT ${full}
 layout xl-layout ${goland}:REPEAT ${full}
-layout xl-layout ${merge}:REPEAT ${full}
 layout xl-layout ${pycharm}:REPEAT ${full}
+layout xl-layout ${kitty}:REPEAT ${full}
+
+layout webcam-layout ${browser}:REPEAT ${middleMiddle}
+layout webcam-layout ${spotify}:REPEAT ${middleMiddle}
+layout webcam-layout ${slack}:REPEAT ${middleMiddle}
+layout webcam-layout ${editor}:REPEAT ${middleMiddle}
+layout webcam-layout ${firefox}:REPEAT ${middleMiddle}
+layout webcam-layout ${safari}:REPEAT ${middleMiddle}
+layout webcam-layout ${emacs}:REPEAT ${middleMiddle}
+layout webcam-layout ${alacritty}:REPEAT ${middleMiddle}
+layout webcam-layout ${goland}:REPEAT ${middleMiddle}
+layout webcam-layout ${pycharm}:REPEAT ${middleMiddle}
+layout webcam-layout ${kitty}:REPEAT ${middleMiddle}
 
 # Bind a key to trigger this layout
 bind /:${hyper} layout xl-layout
@@ -118,6 +126,8 @@ bind j:${hyper} ${bumpDown60}
 bind k:${hyper} ${bumpUp40}
 bind 1:${hyper} throw 0
 bind 2:${hyper} throw 1
+bind m:${hyper} ${middleMiddle}
+bind p:${hyper} sequence hide all-but:'Google Chrome' | layout webcam-layout
 bind r:${hyper} relaunch
 bind space:${hyper} ${full}
 
