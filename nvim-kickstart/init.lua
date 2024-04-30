@@ -2,6 +2,9 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.have_nerd_font = false
 vim.g.filebeagle_suppress_keymaps = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_matchit = 1
 
 vim.opt.number = true
 vim.opt.clipboard = "unnamedplus"
@@ -207,7 +210,6 @@ require("lazy").setup({
 				end,
 			},
 			{ "nvim-telescope/telescope-ui-select.nvim" },
-			{ "nvim-telescope/telescope-frecency.nvim" },
 
 			-- Useful for getting pretty icons, but requires a Nerd Font.
 			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
@@ -236,6 +238,7 @@ require("lazy").setup({
 			-- See `:help telescope` and `:help telescope.setup()`
 			require("telescope").setup({
 				defaults = {
+					file_ignore_patterns = { "vendor/.*", "node%_modules/.*" },
 					mappings = {
 						i = {
 							["<esc>"] = require("telescope.actions").close,
@@ -254,7 +257,6 @@ require("lazy").setup({
 			-- Enable Telescope extensions if they are installed
 			pcall(require("telescope").load_extension, "fzf")
 			pcall(require("telescope").load_extension, "ui-select")
-			pcall(require("telescope").load_extension, "frecency")
 
 			-- See `:help telescope.builtin`
 			local builtin = require("telescope.builtin")
