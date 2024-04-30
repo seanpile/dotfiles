@@ -97,6 +97,7 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init - | sed s/precmd/precwd/g)"
 
 # Default editor
+alias nvim='NVIM_APPNAME="nvim-kickstart" /usr/local/bin/nvim'
 alias vim="nvim"
 export EDITOR="nvim"
 
