@@ -1,0 +1,5 @@
+vim.cmd("setlocal spell")
+vim.cmd("setlocal wrap")
+vim.cmd("setlocal colorcolumn=+0")
+vim.cmd("setlocal formatoptions=tcqj")
+vim.cmd("setlocal textwidth=120")

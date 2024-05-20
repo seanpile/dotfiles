@@ -1,6 +1,6 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 vim.g.filebeagle_suppress_keymaps = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrw = 1
@@ -36,6 +36,11 @@ vim.opt.guicursor = ""
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
+vim.diagnostic.config({
+	virtual_text = false,
+	underline = false,
+	signs = false,
+})
 
 -- Basic Keymaps
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
@@ -44,11 +49,23 @@ vim.keymap.set("n", "<left>", '<cmd>echo "Use h to move!!"<CR>')
 vim.keymap.set("n", "<right>", '<cmd>echo "Use l to move!!"<CR>')
 vim.keymap.set("n", "<up>", '<cmd>echo "Use k to move!!"<CR>')
 vim.keymap.set("n", "<down>", '<cmd>echo "Use j to move!!"<CR>')
-vim.keymap.set("n", "<leader>s", ":w<CR>", { desc = "Save file" })
-vim.keymap.set("n", "<C-n>", "<cmd>cnext<CR>", { desc = "Go to previous Diagnostic message" })
-vim.keymap.set("n", "<C-p>", "<cmd>cprev<CR>", { desc = "Go to next Diagnostic message" })
-vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
-vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+vim.keymap.set("n", "<leader>s", ":wa<CR>", { desc = "Save file" })
+vim.keymap.set("n", "<leader>e", function()
+	-- If we find a floating window, close it.
+	local found_float = false
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		if vim.api.nvim_win_get_config(win).relative ~= "" then
+			vim.api.nvim_win_close(win, true)
+			found_float = true
+		end
+	end
+
+	if found_float then
+		return
+	end
+
+	vim.diagnostic.open_float(nil, { focus = false, scope = "cursor" })
+end, { desc = "Toggle Diagnostic Popup" })
 
 -- Keep cursor centered when scrolling down/up
 vim.keymap.set("n", "J", "mzJ`z")
@@ -73,10 +90,10 @@ vim.keymap.set("n", "<leader>wp", ":close<cr>", { desc = "Close current window" 
 
 -- Close vim if last window is the quick fix window
 vim.api.nvim_create_autocmd("WinEnter", { command = [[ if winnr('$') == 1 && &buftype == "quickfix"|q|endif ]] })
-vim.api.nvim_create_autocmd(
-	"FileType",
-	{ pattern = { "help", "startuptime", "qf", "lspinfo" }, command = [[ nnoremap <buffer><silent> q :close<CR>]] }
-)
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "help", "startuptime", "qf", "lspinfo", "diagnostic" },
+	command = [[ nnoremap <buffer><silent> q :close<CR>]],
+})
 
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "json",
@@ -104,7 +121,6 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require("lazy").setup({
-
 	-- solarized.nvim; colors!
 	{
 		"ishan9299/nvim-solarized-lua",
@@ -126,7 +142,7 @@ require("lazy").setup({
 	"farmergreg/vim-lastplace",
 
 	-- Basic git integration
-	"tpope/vim-fugitive",
+	--"tpope/vim-fugitive",
 
 	-- Better file navigating
 	{
@@ -141,54 +157,7 @@ require("lazy").setup({
 	"github/copilot.vim",
 
 	-- comment.nvim; gc to comment regions
-	{ "numToStr/Comment.nvim", opts = {} },
-
-	-- NOTE: Plugins can also be configured to run Lua code when they are loaded.
-	--
-	-- This is often very useful to both group configuration, as well as handle
-	-- lazy loading plugins that don't need to be loaded immediately at startup.
-	--
-	-- For example, in the following configuration, we use:
-	--  event = 'VimEnter'
-	--
-	-- which loads which-key before all the UI elements are loaded. Events can be
-	-- normal autocommands events (`:help autocmd-events`).
-	--
-	-- Then, because we use the `config` key, the configuration only runs
-	-- after the plugin has been loaded:
-	--  config = function() ... end
-
-	{ -- Useful plugin to show you pending keybinds.
-		"folke/which-key.nvim",
-		event = "VimEnter", -- Sets the loading event to 'VimEnter'
-		config = function() -- This is the function that runs, AFTER loading
-			require("which-key").setup()
-
-			-- Document existing key chains
-			require("which-key").register({
-				["<leader>c"] = { name = "[C]ode", _ = "which_key_ignore" },
-				["<leader>d"] = { name = "[D]ocument", _ = "which_key_ignore" },
-				["<leader>r"] = { name = "[R]ename", _ = "which_key_ignore" },
-				["<leader>p"] = { name = "[P]roject Search", _ = "which_key_ignore" },
-				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
-				["<leader>t"] = { name = "[T]oggle", _ = "which_key_ignore" },
-				["<leader>h"] = { name = "Git [H]unk", _ = "which_key_ignore" },
-				["<leader>z"] = { name = "Configuration", _ = "which_key_ignore" },
-				["<leader>s"] = { name = "[S]ave file", _ = "which_key_ignore" },
-			})
-			-- visual mode
-			require("which-key").register({
-				["<leader>h"] = { "Git [H]unk" },
-			}, { mode = "v" })
-		end,
-	},
-
-	-- NOTE: Plugins can specify dependencies.
-	--
-	-- The dependencies are proper plugin specifications as well - anything
-	-- you do for a plugin at the top level, you can do for a dependency.
-	--
-	-- Use the `dependencies` key to specify the dependencies of a particular plugin
+	"numToStr/Comment.nvim",
 
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
@@ -212,7 +181,7 @@ require("lazy").setup({
 			{ "nvim-telescope/telescope-ui-select.nvim" },
 
 			-- Useful for getting pretty icons, but requires a Nerd Font.
-			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
+			{ "nvim-tree/nvim-web-devicons" },
 		},
 		config = function()
 			-- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -250,6 +219,17 @@ require("lazy").setup({
 				extensions = {
 					["ui-select"] = {
 						require("telescope.themes").get_dropdown(),
+					},
+				},
+				pickers = {
+					find_files = {
+						disable_devicons = true,
+					},
+					buffers = {
+						disable_devicons = true,
+					},
+					oldfiles = {
+						disable_devicons = true,
 					},
 				},
 			})
@@ -372,7 +352,7 @@ require("lazy").setup({
 					map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
 
 					-- Fuzzy find all the symbols in your current document.
-					--  Symbols are things like variables, functions, types, etc.
+					--
 					map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
 
 					-- Fuzzy find all the symbols in your current workspace.
@@ -385,7 +365,9 @@ require("lazy").setup({
 
 					-- Execute a code action, usually your cursor needs to be on top of an error
 					-- or a suggestion from your LSP for this to activate.
-					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+					map("<leader>co", function()
+						vim.lsp.buf.code_action({ apply = true })
+					end, "[C]ode actions")
 
 					-- Opens a popup that displays documentation about the word under your cursor
 					--  See `:help K` for why this keymap.
@@ -394,6 +376,23 @@ require("lazy").setup({
 					-- WARN: This is not Goto Definition, this is Goto Declaration.
 					--  For example, in C this would take you to the header.
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+
+					local client = vim.lsp.get_client_by_id(event.data.client_id)
+					if client and client.server_capabilities.documentHighlightProvider then
+						local highlight_augroup =
+							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
+						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+							buffer = event.buf,
+							group = highlight_augroup,
+							callback = vim.lsp.buf.document_highlight,
+						})
+
+						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+							buffer = event.buf,
+							group = highlight_augroup,
+							callback = vim.lsp.buf.clear_references,
+						})
+					end
 				end,
 			})
 
@@ -424,7 +423,9 @@ require("lazy").setup({
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 			local servers = {
 				jsonls = {},
-				gopls = {},
+				gopls = {
+					single_file_support = true,
+				},
 				pyright = {},
 				-- clangd = {},
 				-- rust_analyzer = {},
@@ -511,6 +512,7 @@ require("lazy").setup({
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
+				go = { "goimports", "gofumpt" },
 				-- Conform can also run multiple formatters sequentially
 				-- python = { "isort", "black" },
 				--
@@ -613,55 +615,43 @@ require("lazy").setup({
 
 	{ -- Collection of various small independent plugins/modules
 		"echasnovski/mini.nvim",
+		version = "*",
 		config = function()
-			-- Better Around/Inside textobjects
-			--
-			-- Examples:
-			--  - va)  - [V]isually select [A]round [)]paren
-			--  - yinq - [Y]ank [I]nside [N]ext [']quote
-			--  - ci'  - [C]hange [I]nside [']quote
-			require("mini.ai").setup({ n_lines = 500 })
-
-			-- Add/delete/replace surroundings (brackets, quotes, etc.)
-			--
-			-- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-			-- - sd'   - [S]urround [D]elete [']quotes
-			-- - sr)'  - [S]urround [R]eplace [)] [']
-			require("mini.surround").setup()
+			-- Improved starter screen
+			local starter = require("mini.starter")
+			starter.setup({
+				evaluate_single = true,
+				items = {
+					starter.sections.builtin_actions(),
+					starter.sections.recent_files(10, false),
+					starter.sections.recent_files(10, true),
+				},
+				content_hooks = {
+					starter.gen_hook.adding_bullet(),
+					starter.gen_hook.indexing("all", { "Builtin actions" }),
+					starter.gen_hook.padding(3, 2),
+				},
+			})
 
 			local bufremove = require("mini.bufremove")
 			bufremove.setup()
-			vim.keymap.set("n", "<leader><bs>", bufremove.unshow_in_window, { desc = "Unshow buffer in window" })
+			vim.keymap.set("n", "<leader><bs>", bufremove.unshow_in_window, { desc = "Remove buffer" })
 		end,
 	},
 
 	{
-		"itchyny/lightline.vim",
+		"nvim-lualine/lualine.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			vim.opt.laststatus = 2
-			vim.g.lightline = {
-				colorscheme = "solarized",
-				active = {
-					left = {
-						{ "mode", "paste" },
-						{ "readonly", "filename", "modified" },
-					},
-					right = {
-						{ "lineinfo" },
-						{ "percent" },
-						{ "filetype" },
-						{ "gitbranch" },
-					},
+			require("lualine").setup({
+				options = {
+					theme = "nord",
+					extensions = { "trouble" },
 				},
-				inactive = {
-					left = { { "filename" } },
-					right = { { "lineinfo" }, { "percent" } },
+				sections = {
+					lualine_x = { "overseer" },
 				},
-				component_expand = {
-					lineinfo = "lightline#lineinfo#percent",
-					gitbranch = "FugitiveHead",
-				},
-			}
+			})
 		end,
 	},
 
@@ -730,6 +720,69 @@ require("lazy").setup({
 		keys = {
 			{ "<leader>lg", "<cmd>LazyGit<cr>", desc = "LazyGit" },
 		},
+	},
+
+	{
+		"folke/trouble.nvim",
+		config = function()
+			local trouble = require("trouble")
+			trouble.setup({
+				icons = false,
+				fold_open = "v", -- icon used for open folds
+				fold_closed = ">", -- icon used for closed folds
+				indent_lines = false, -- add an indent guide below the fold icons
+				auto_close = true,
+				signs = {
+					-- icons / text used for a diagnostic
+					error = "error",
+					warning = "warn",
+					hint = "hint",
+					information = "info",
+				},
+				use_diagnostic_signs = false, -- enabling this will use the signs defined in your lsp client
+			})
+
+			vim.keymap.set("n", "<C-n>", function()
+				trouble.next({ skip_groups = true, jump = true })
+			end, { desc = "Next Trouble Item" })
+			vim.keymap.set("n", "<C-p>", function()
+				trouble.previous({ skip_groups = true, jump = true })
+			end, { desc = "Previous Trouble Item" })
+
+			vim.keymap.set("n", "<leader>xx", function()
+				trouble.toggle()
+			end, { desc = "Toggle Trouble" })
+			vim.keymap.set("n", "<leader>xw", function()
+				trouble.toggle("workspace_diagnostics")
+			end, { desc = "Toggle Workspace Diagnostics" })
+			vim.keymap.set("n", "<leader>xd", function()
+				trouble.toggle("document_diagnostics")
+			end, { desc = "Toggle Document Diagnostics" })
+			vim.keymap.set("n", "<leader>xq", function()
+				trouble.toggle("quickfix")
+			end, { desc = "Toggle Quickfix" })
+			vim.keymap.set("n", "<leader>xl", function()
+				trouble.toggle("loclist")
+			end, { desc = "Toggle Location List" })
+			vim.keymap.set("n", "gR", function()
+				trouble.toggle("lsp_references")
+			end)
+		end,
+	},
+
+	{
+		"stevearc/overseer.nvim",
+		opts = {},
+		config = function()
+			local overseer = require("overseer")
+			overseer.setup()
+
+			vim.keymap.set("n", "<leader>mo", function()
+				overseer.toggle()
+			end, { desc = "Open Overseer" })
+
+			vim.keymap.set("n", "<leader>mm", function() end, { desc = "Run Action" })
+		end,
 	},
 }, {
 	ui = {
