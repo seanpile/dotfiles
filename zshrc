@@ -1,3 +1,5 @@
+DISABLE_AUTO_UPDATE="true"
+
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
@@ -97,9 +99,11 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init - | sed s/precmd/precwd/g)"
 
 # Default editor
-alias nvim='NVIM_APPNAME="nvim-kickstart" /usr/local/bin/nvim'
+alias nvim='NVIM_APPNAME="nvim-mini" /usr/local/bin/nvim'
 alias vim="nvim"
+
 export EDITOR="nvim"
+export BAT_THEME="Solarized (dark)"
 
 # fzf via Homebrew
 if [ -e /usr/local/opt/fzf/shell/completion.zsh ]; then
