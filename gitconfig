@@ -47,3 +47,5 @@
 	insteadOf = https://github.com/
 [remote "origin"]
 	prune = true
+[advice]
+	forceDeleteBranch = false

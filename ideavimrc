@@ -38,7 +38,10 @@ nmap <leader>wo      <Action>(UnsplitAll)
 
 """ Code Actions
 nmap <leader>co      <Action>(ShowIntentionActions)
+nmap <leader>cr      <Action>(RenameElement)
+nmap <leader>ci      <Action>(OpenInlineChatAction)
 nmap <leader>gr      <Action>(FindUsages)
+nmap <leader>gR      <Action>(GotoImplementation)
 nmap <leader>gc      <Action>(EditorContextInfo)
 nmap <leader>got     <Action>(RunClass)
 
@@ -61,3 +64,6 @@ nmap <C-l>          <C-W>l
 
 nmap <C-n>          <Action>(VcsShowNextChangeMarker)
 nmap <C-p>          <Action>(VcsShowPrevChangeMarker)
+
+imap <C-Space>      <Action>(CodeCompletion)
+nmap <C-Space>      <Action>(CodeCompletion)

@@ -91,6 +91,7 @@ fpath=(/usr/local/share/zsh-completions $fpath)
 alias gs="git status"
 alias gd="git diff"
 alias gds="git diff --staged"
+alias gbl="git branch --sort=-committerdate"
 alias govim='gvim -c "set titlestring=`echo $(echo "${PWD##*/}")`" --'
 alias dps="docker ps --format '{{.Names}} {{.Status}}'"
 
@@ -152,3 +153,5 @@ _gen_fzf_default_opts
 
 # asdf
 . /usr/local/opt/asdf/libexec/asdf.sh
+
+. "$HOME/.local/bin/env"
